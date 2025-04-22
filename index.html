@@ -165,9 +165,12 @@
     Após realizar o pagamento, envie o comprovante para o WhatsApp:
     <strong><a href="https://wa.me/5527998597050" target="_blank" style="color: #4d644d; text-decoration: underline;">+55 27 99859-7050</a></strong>
   </p>
-  <a href="00020126420014br.gov.bcb.pix0120segatto800@gmail.com5204000053039865802BR5923Fernando Segatto Morais6009Sao Paulo62290525REC6807BD9E20ADE456786499630415A1" target="_blank">
-  <img src="https://delicate-brioche-000c33.netlify.app/QRCODE.jpg" alt="QR Code para PIX" style="max-width: 150px; width: 100%; margin-top: 20px; border: 2px solid #d1cfc3; border-radius: 8px;">
-</a>
+  <img src="https://delicate-brioche-000c33.netlify.app/QRCODE.jpg" 
+     alt="QR Code para PIX" 
+     onclick="copiarCodigoPix()" 
+     style="max-width: 150px; width: 100%; margin-top: 20px; border: 2px solid #d1cfc3; border-radius: 8px; cursor: pointer;"
+     title="Clique para copiar o código PIX">
+<p id="copiado" style="color: green; font-size: 14px; display: none; margin-top: 5px;">Código PIX copiado!</p>
 </div>
   
   <footer>
@@ -258,6 +261,19 @@
     }
 
     renderNumbers(1, 104);
+    function copiarCodigoPix() {
+  const codigoPix = "00020126420014br.gov.bcb.pix0120segatto800@gmail.com5204000053039865802BR5923Fernando Segatto Morais6009Sao Paulo62290525REC6807BD9E20ADE456786499630415A1";
+  
+  navigator.clipboard.writeText(codigoPix).then(() => {
+    const mensagem = document.getElementById('copiado');
+    mensagem.style.display = 'block';
+    setTimeout(() => {
+      mensagem.style.display = 'none';
+    }, 3000);
+  }).catch(err => {
+    alert('Erro ao copiar o código PIX: ' + err);
+  });
+}
   </script>
 </body>
 </html>
