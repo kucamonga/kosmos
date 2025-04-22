@@ -1,119 +1,134 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Reservas - Chá de Bebê do Samir</title>
+  <meta charset="UTF-8">
+  <title>Reservas da Rifa</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f3f7f1;
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
       color: #333;
       padding: 20px;
-      text-align: center;
     }
 
     h1 {
-      margin-bottom: 20px;
+      text-align: center;
+      color: #4c6a4c;
     }
 
     table {
       width: 100%;
-      max-width: 800px;
-      margin: 0 auto 30px auto;
       border-collapse: collapse;
+      margin-top: 20px;
     }
 
     th, td {
       border: 1px solid #ccc;
-      padding: 8px;
-      font-size: 14px;
+      padding: 10px;
+      text-align: left;
     }
 
     th {
-      background-color: #e1efe1;
+      background-color: #e0e8da;
+      color: #333;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f4f4f4;
     }
 
     button {
-      margin: 10px 5px;
-      padding: 8px 14px;
-      font-size: 14px;
-      border: none;
-      background-color: #6b8a6b;
+      padding: 6px 10px;
+      background-color: #c0392b;
       color: white;
+      border: none;
       border-radius: 4px;
       cursor: pointer;
     }
 
     button:hover {
-      background-color: #567256;
+      background-color: #a93226;
     }
 
-    .empty-msg {
-      margin-top: 40px;
-      color: #888;
+    #export-btn {
+      margin-top: 20px;
+      background-color: #4c6a4c;
+    }
+
+    #export-btn:hover {
+      background-color: #3b523b;
     }
   </style>
 </head>
 <body>
-  <h1>Lista de Reservas</h1>
-  <div id="reserva-container"></div>
-  <button onclick="exportarCSV()">Exportar Reservas</button>
+
+  <h1>Reservas da Rifa do Samir</h1>
+  <button id="export-btn" onclick="exportToCSV()">Exportar para CSV</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Número</th>
+        <th>Nome</th>
+        <th>Telefone</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody id="reserva-tbody"></tbody>
+  </table>
 
   <script>
-    const container = document.getElementById('reserva-container');
-    let reservas = JSON.parse(localStorage.getItem('reservas')) || [];
+    function carregarReservas() {
+      const tbody = document.getElementById('reserva-tbody');
+      tbody.innerHTML = '';
 
-    function renderTabela() {
-      if (reservas.length === 0) {
-        container.innerHTML = '<p class="empty-msg">Nenhuma reserva feita ainda.</p>';
-        return;
-      }
-
-      let html = '<table><thead><tr><th>Nome</th><th>Telefone</th><th>Números</th><th>Ações</th></tr></thead><tbody>';
+      const reservas = JSON.parse(localStorage.getItem('reservas')) || [];
 
       reservas.forEach((reserva, index) => {
-        html += `<tr>
-          <td>${reserva.nome}</td>
-          <td>${reserva.telefone}</td>
-          <td>${reserva.numeros.join(', ')}</td>
-          <td><button onclick="removerReserva(${index})">Remover</button></td>
-        </tr>`;
+        reserva.numeros.forEach(numero => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${numero < 10 ? '0' + numero : numero}</td>
+            <td>${reserva.nome}</td>
+            <td>${reserva.telefone}</td>
+            <td><button onclick="removerReserva(${numero})">Remover</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
       });
-
-      html += '</tbody></table>';
-      container.innerHTML = html;
     }
 
-    function removerReserva(index) {
-      if (confirm('Deseja realmente remover esta reserva?')) {
-        reservas.splice(index, 1);
-        localStorage.setItem('reservas', JSON.stringify(reservas));
-        renderTabela();
-      }
+    function removerReserva(numeroRemover) {
+      let reservas = JSON.parse(localStorage.getItem('reservas')) || [];
+      reservas = reservas.flatMap(reserva => {
+        const novaLista = reserva.numeros.filter(n => n !== numeroRemover);
+        if (novaLista.length === 0) return []; // remove reserva se não tiver mais números
+        return [{ ...reserva, numeros: novaLista }];
+      });
+      localStorage.setItem('reservas', JSON.stringify(reservas));
+      carregarReservas();
     }
 
-    function exportarCSV() {
-      if (reservas.length === 0) {
-        alert("Não há reservas para exportar.");
-        return;
-      }
+    function exportToCSV() {
+      const reservas = JSON.parse(localStorage.getItem('reservas')) || [];
+      let csv = 'Número,Nome,Telefone\n';
 
-      let csv = "Nome,Telefone,Números\n";
       reservas.forEach(reserva => {
-        csv += `"${reserva.nome}","${reserva.telefone}","${reserva.numeros.join(' - ')}"\n`;
+        reserva.numeros.forEach(numero => {
+          csv += `${numero},${reserva.nome},${reserva.telefone}\n`;
+        });
       });
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'reservas-samir.csv';
-      a.click();
-      URL.revokeObjectURL(url);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'reservas.csv';
+      link.click();
     }
 
-    renderTabela();
+    carregarReservas();
   </script>
+
 </body>
 </html>
