@@ -1,5 +1,3 @@
-<!-- Substitua o trecho do HTML original inteiro pelo abaixo -->
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -7,38 +5,143 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rifa do Chá de Bebê do Samir</title>
   <style>
-    /* ... (mantém todo seu CSS atual, inalterado) ... */
+    body {
+      font-family: 'Georgia', serif;
+      background-color: #eaf1e6;
+      color: #4d644d;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
 
-    #load-more {
-      margin: 20px auto;
-      padding: 10px 20px;
+    .header {
+      padding-top: 20px;
+    }
+
+    .header img {
+      max-width: 320px;
+      width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .parents-info {
+      font-size: 18px;
+      font-weight: bold;
+      color: #567256;
+      margin-bottom: 10px;
+    }
+
+    .sorteio-info {
+      font-size: 16px;
+      color: #6d856d;
+      margin-bottom: 30px;
+    }
+
+    .arabesque {
+      background: url('https://delicate-brioche-000c33.netlify.app/premio.jpeg') no-repeat center;
+      background-size: contain;
+      height: 30px;
+      margin: 10px 0;
+    }
+
+    .numbers-container {
+      display: grid;
+      grid-template-columns: repeat(13, 1fr);
+      gap: 10px;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 20px 10px;
+      background-color: #f5f1e5;
+      border: 1px solid #d1cfc3;
+      border-radius: 8px;
+    }
+
+    .number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #efe5d8;
+      color: #4c6a4c;
       font-size: 14px;
+      font-weight: bold;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid #d1c2aa;
+      cursor: pointer;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    .number:hover {
+      background-color: #d6cbb3;
+    }
+
+    .number.reserved {
+      background-color: #d9d9d9;
+      color: #8c8c8c;
+      cursor: not-allowed;
+    }
+
+    .form-container {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .form-container input {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1.8px solid #cbbda3;
+      background-color: #fefcf8;
+      font-size: 14px;
+      width: 180px;
+    }
+
+    .form-container button {
       background-color: #6b8a6b;
       color: white;
+      font-size: 16px;
+      padding: 8px 20px;
       border: none;
-      border-radius: 5px;
       cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
     }
 
-    #qrcode-container {
-      margin-top: 20px;
-      display: none;
+    .form-container button:hover {
+      background-color: #567256;
     }
 
-    #qrcode-container img {
-      max-width: 250px;
-    }
-
-    #qrcode-container p {
-      margin-top: 10px;
-      font-weight: bold;
+    .load-more {
+      margin-top: 15px;
+      font-size: 14px;
+      background-color: transparent;
+      border: none;
       color: #4c6a4c;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    footer {
+      margin-top: 20px;
+      padding: 20px;
+      background: #eaf1e6;
+      color: #4d644d;
+    }
+
+    footer .arabesque {
+      margin: 20px auto;
     }
   </style>
 </head>
 <body>
 
-  <!-- Cabeçalho -->
   <div class="header">
     <img src="https://delicate-brioche-000c33.netlify.app/Image.jpeg" alt="Decoração da Prateleira">
     <h1>Rifa do Chá de Bebê do Samir</h1>
@@ -47,24 +150,15 @@
     <div class="arabesque"></div>
   </div>
 
-  <!-- Números -->
   <div class="numbers-container" id="numbers"></div>
-  <button id="load-more" onclick="loadMoreNumbers()">Carregar mais números</button>
+  <button class="load-more" onclick="loadMoreNumbers()">Mostrar mais números</button>
 
-  <!-- Formulário -->
   <div class="form-container">
     <input type="text" id="name" placeholder="Nome">
     <input type="tel" id="phone" placeholder="Telefone">
     <button onclick="reserveNumbers()">Reservar</button>
   </div>
 
-  <!-- QR Code -->
-  <div id="qrcode-container">
-    <img src="https://delicate-brioche-000c33.netlify.app/qrcode.png" alt="QR Code Pix">
-    <p>Escaneie o QR Code para realizar o pagamento via Pix</p>
-  </div>
-
-  <!-- Rodapé -->
   <footer>
     <div class="arabesque"></div>
     <p>Nós três ficamos muito felizes pelo seu apoio e carinho. Gràdtãtâo!!!</p>
@@ -72,26 +166,22 @@
 
   <script>
     const numbersContainer = document.getElementById('numbers');
-    const qrcodeContainer = document.getElementById('qrcode-container');
     let selectedNumbers = [];
-    let currentLimit = 104;
-    const maxLimit = 300;
+    let renderedCount = 0;
 
     function getReservas() {
       return JSON.parse(localStorage.getItem('reservas')) || [];
     }
 
-    function renderNumbers() {
+    function renderNumbers(start, end) {
       const reservas = getReservas();
-      numbersContainer.innerHTML = '';
 
-      for (let i = 1; i <= currentLimit; i++) {
+      for (let i = start; i <= end; i++) {
         const numberDiv = document.createElement('div');
         numberDiv.className = 'number';
         numberDiv.textContent = i < 10 ? `0${i}` : i;
 
         const reserva = reservas.find(r => r.numeros.includes(i));
-
         if (reserva) {
           numberDiv.classList.add('reserved');
           numberDiv.title = `Reservado por: ${reserva.nome}`;
@@ -102,59 +192,16 @@
         numbersContainer.appendChild(numberDiv);
       }
 
-      // Esconde botão se todos carregados
-      if (currentLimit >= maxLimit) {
-        document.getElementById('load-more').style.display = 'none';
+      renderedCount = end;
+      if (renderedCount >= 300) {
+        document.querySelector('.load-more').style.display = 'none';
       }
     }
 
     function loadMoreNumbers() {
-      currentLimit = Math.min(currentLimit + 50, maxLimit);
-      renderNumbers();
+      const nextEnd = Math.min(renderedCount + 52, 300);
+      renderNumbers(renderedCount + 1, nextEnd);
     }
 
     function toggleNumber(number, element) {
-      if (selectedNumbers.includes(number)) {
-        selectedNumbers = selectedNumbers.filter(n => n !== number);
-        element.style.backgroundColor = '#efe5d8';
-      } else {
-        selectedNumbers.push(number);
-        element.style.backgroundColor = '#d6cbb3';
-      }
-    }
-
-    function reserveNumbers() {
-      const name = document.getElementById('name').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-
-      if (!name || !phone || selectedNumbers.length === 0) {
-        alert('Preencha os dados e selecione pelo menos um número.');
-        return;
-      }
-
-      const reservas = getReservas();
-      const ocupados = new Set(reservas.flatMap(r => r.numeros));
-      const conflito = selectedNumbers.filter(n => ocupados.has(n));
-      if (conflito.length > 0) {
-        alert(`Os seguintes números já foram reservados: ${conflito.join(', ')}`);
-        return;
-      }
-
-      reservas.push({ nome: name, telefone: phone, numeros: [...selectedNumbers] });
-      localStorage.setItem('reservas', JSON.stringify(reservas));
-
-      const total = selectedNumbers.length * 25;
-      alert(`Reserva confirmada!\nNúmeros: ${selectedNumbers.join(', ')}\nNome: ${name}\nTelefone: ${phone}\nTotal: R$${total},00`);
-
-      document.getElementById('name').value = '';
-      document.getElementById('phone').value = '';
-      selectedNumbers = [];
-
-      qrcodeContainer.style.display = 'block';
-      renderNumbers();
-    }
-
-    renderNumbers();
-  </script>
-</body>
-</html>
+      if (selectedNumbers.includes(number))
