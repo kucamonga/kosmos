@@ -1,134 +1,38 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <title>Reservas da Rifa</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f7f7f7;
-      color: #333;
-      padding: 20px;
-    }
+<table border="1" cellpadding="8" cellspacing="0" style="margin: 20px auto; border-collapse: collapse; font-family: Arial; font-size: 14px;">
+  <thead style="background-color: #eaf1e6; color: #4d644d;">
+    <tr>
+      <th>Número</th>
+      <th>Nome</th>
+      <th>Telefone</th>
+      <th>Data/Hora</th>
+      <th>Ação</th>
+    </tr>
+  </thead>
+  <tbody id="lista-reservas"></tbody>
+</table>
 
-    h1 {
-      text-align: center;
-      color: #4c6a4c;
-    }
+<script>
+  const lista = document.getElementById('lista-reservas');
+  const reservas = JSON.parse(localStorage.getItem('reservas')) || [];
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
+  reservas.forEach((r, i) => {
+    const tr = document.createElement('tr');
 
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-    }
+    tr.innerHTML = `
+      <td>${String(r.numero).padStart(2, '0')}</td>
+      <td>${r.nome}</td>
+      <td>${r.telefone}</td>
+      <td>${r.data || ''}</td>
+      <td><button onclick="remover(${i})" style="padding: 4px 10px; cursor: pointer;">Desmarcar</button></td>
+    `;
+    lista.appendChild(tr);
+  });
 
-    th {
-      background-color: #e0e8da;
-      color: #333;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f4f4f4;
-    }
-
-    button {
-      padding: 6px 10px;
-      background-color: #c0392b;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #a93226;
-    }
-
-    #export-btn {
-      margin-top: 20px;
-      background-color: #4c6a4c;
-    }
-
-    #export-btn:hover {
-      background-color: #3b523b;
-    }
-  </style>
-</head>
-<body>
-
-  <h1>Reservas da Rifa do Samir</h1>
-  <button id="export-btn" onclick="exportToCSV()">Exportar para CSV</button>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Número</th>
-        <th>Nome</th>
-        <th>Telefone</th>
-        <th>Ação</th>
-      </tr>
-    </thead>
-    <tbody id="reserva-tbody"></tbody>
-  </table>
-
-  <script>
-    function carregarReservas() {
-      const tbody = document.getElementById('reserva-tbody');
-      tbody.innerHTML = '';
-
-      const reservas = JSON.parse(localStorage.getItem('reservas')) || [];
-
-      reservas.forEach((reserva, index) => {
-        reserva.numeros.forEach(numero => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${numero < 10 ? '0' + numero : numero}</td>
-            <td>${reserva.nome}</td>
-            <td>${reserva.telefone}</td>
-            <td><button onclick="removerReserva(${numero})">Remover</button></td>
-          `;
-          tbody.appendChild(tr);
-        });
-      });
-    }
-
-    function removerReserva(numeroRemover) {
-      let reservas = JSON.parse(localStorage.getItem('reservas')) || [];
-      reservas = reservas.flatMap(reserva => {
-        const novaLista = reserva.numeros.filter(n => n !== numeroRemover);
-        if (novaLista.length === 0) return []; // remove reserva se não tiver mais números
-        return [{ ...reserva, numeros: novaLista }];
-      });
+  function remover(index) {
+    if (confirm('Tem certeza que deseja remover essa reserva?')) {
+      reservas.splice(index, 1);
       localStorage.setItem('reservas', JSON.stringify(reservas));
-      carregarReservas();
+      location.reload();
     }
-
-    function exportToCSV() {
-      const reservas = JSON.parse(localStorage.getItem('reservas')) || [];
-      let csv = 'Número,Nome,Telefone\n';
-
-      reservas.forEach(reserva => {
-        reserva.numeros.forEach(numero => {
-          csv += `${numero},${reserva.nome},${reserva.telefone}\n`;
-        });
-      });
-
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'reservas.csv';
-      link.click();
-    }
-
-    carregarReservas();
-  </script>
-
-</body>
-</html>
+  }
+</script>
