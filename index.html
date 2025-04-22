@@ -241,7 +241,7 @@
       }
       const dataHora = new Date().toLocaleString('pt-BR');
       selectedNumbers.forEach(numero => {
-      reservas.push({ nome: name, telefone: phone, numero: numero, data: dataHora });
+      reservas.push({ nome: name, telefone: phone, numeros: [...selectedNumbers], data: dataHora });
       });
       
      // reservas.push({ nome: name, telefone: phone, numeros: [...selectedNumbers] });
