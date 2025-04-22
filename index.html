@@ -10,55 +10,22 @@
       background-color: #eaf1e6;
       color: #4d644d;
       margin: 0;
-      padding: 0;
+      padding: 20px;
       text-align: center;
     }
 
-    .header {
-      padding-top: 20px;
-    }
-
-    .header img {
-      max-width: 320px;
-      width: 100%;
-      height: auto;
-      margin-bottom: 10px;
-    }
-
     h1 {
-      font-size: 28px;
       margin-bottom: 10px;
-    }
-
-    .parents-info {
-      font-size: 18px;
-      font-weight: bold;
-      color: #567256;
-      margin-bottom: 10px;
-    }
-
-    .sorteio-info {
-      font-size: 16px;
-      color: #6d856d;
-      margin-bottom: 30px;
-    }
-
-    .arabesque {
-      background: url('https://delicate-brioche-000c33.netlify.app/premio.jpeg') no-repeat center;
-      background-size: contain;
-      height: 30px;
-      margin: 10px 0;
     }
 
     .numbers-container {
       display: grid;
       grid-template-columns: repeat(13, 1fr);
       gap: 10px;
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 20px 10px;
+      max-width: 800px;
+      margin: 0 auto 30px auto;
       background-color: #f5f1e5;
-      border: 1px solid #d1cfc3;
+      padding: 20px;
       border-radius: 8px;
     }
 
@@ -66,15 +33,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      height: 40px;
       background-color: #efe5d8;
       color: #4c6a4c;
-      font-size: 14px;
       font-weight: bold;
-      height: 40px;
-      border-radius: 8px;
-      border: 1px solid #d1c2aa;
+      border: 1px solid #cbbda3;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.3s ease-in-out;
+      transition: background-color 0.3s;
     }
 
     .number:hover {
@@ -82,172 +48,123 @@
     }
 
     .number.reserved {
-      background-color: #d9d9d9;
-      color: #8c8c8c;
+      background-color: #ccc;
+      color: #666;
       cursor: not-allowed;
     }
 
     .form-container {
-      margin-top: 30px;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
+      margin-top: 20px;
     }
 
-    .form-container input {
-      padding: 10px;
+    input {
+      padding: 8px;
+      margin: 5px;
       border-radius: 5px;
-      border: 1.8px solid #cbbda3;
-      background-color: #fefcf8;
-      font-size: 14px;
-      width: 180px;
+      border: 1px solid #cbbda3;
     }
 
-    .form-container button {
+    button {
+      padding: 8px 15px;
+      border: none;
       background-color: #6b8a6b;
       color: white;
-      font-size: 16px;
-      padding: 8px 20px;
-      border: none;
-      cursor: pointer;
       border-radius: 5px;
-      transition: background-color 0.3s ease;
+      cursor: pointer;
+      font-size: 15px;
     }
 
-    .form-container button:hover {
+    button:hover {
       background-color: #567256;
-    }
-
-    footer {
-      margin-top: 20px;
-      padding: 20px;
-      background: #eaf1e6;
-      color: #4d644d;
-    }
-
-    footer .arabesque {
-      margin: 20px auto;
-    }
-
-    #confirmacao-pagamento {
-      display: none;
-      margin: 30px auto;
-      padding: 20px;
-      max-width: 400px;
-      background-color: #fefcf8;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-    }
-
-    #confirmacao-pagamento img {
-      max-width: 300px;
-      width: 100%;
-      display: block;
-      margin: 0 auto;
-    }
-
-    #confirmacao-pagamento p {
-      margin-top: 20px;
-      font-size: 16px;
-      color: #4d644d;
     }
   </style>
 </head>
 <body>
-  <!-- Cabeçalho -->
-  <div class="header">
-    <img src="https://delicate-brioche-000c33.netlify.app/Image.jpeg" alt="Decoração da Prateleira">
-    <h1>Rifa do Chá de Bebê do Samir</h1>
-    <p class="parents-info">Papai: Edgar &nbsp;&nbsp;|&nbsp;&nbsp; Mamãe: Eliene</p>
-    <p class="sorteio-info">Data do Sorteio: 20/06/2025 &nbsp;&nbsp;|&nbsp;&nbsp; Premiação: 1 Kit Cacau Show</p>
-    <div class="arabesque"></div>
-  </div>
+  <h1>Rifa do Chá de Bebê do Samir</h1>
+  <p>Papai: Edgar | Mamãe: Eliene</p>
 
-  <!-- Grade de Números -->
   <div class="numbers-container" id="numbers"></div>
 
-  <!-- Formulário -->
   <div class="form-container">
-    <input type="text" id="name" placeholder="Nome">
-    <input type="tel" id="phone" placeholder="Telefone">
-    <button onclick="reserveNumbers()">Reservar</button>
+    <input type="text" id="name" placeholder="Seu nome" />
+    <input type="tel" id="phone" placeholder="Seu telefone" />
+    <button onclick="reservar()">Reservar</button>
   </div>
-
-  <!-- Confirmação e QR Code -->
-  <div id="confirmacao-pagamento">
-    <img id="imagem-qr" src="" alt="QR Code para Pix">
-    <p id="mensagem-qr"></p>
-  </div>
-
-  <!-- Rodapé -->
-  <footer>
-    <div class="arabesque"></div>
-    <p>Nós três ficamos muito felizes pelo seu apoio e carinho. Gratidão!!!</p>
-  </footer>
 
   <script>
     const numbersContainer = document.getElementById('numbers');
-    const reservedNumbers = new Set(); // Números já reservados
     let selectedNumbers = [];
 
-    function renderNumbers() {
-      for (let i = 1; i <= 104; i++) {
-        const numberDiv = document.createElement('div');
-        numberDiv.className = 'number';
-        numberDiv.textContent = i < 10 ? `0${i}` : i;
+    function getReservas() {
+      return JSON.parse(localStorage.getItem('reservas')) || [];
+    }
 
-        if (reservedNumbers.has(i)) {
-          numberDiv.classList.add('reserved');
-          numberDiv.title = 'Número já reservado';
+    function renderNumeros() {
+      const reservas = getReservas();
+      const mapaReservado = {};
+
+      reservas.forEach(r => {
+        r.numeros.forEach(n => {
+          mapaReservado[n] = r.nome;
+        });
+      });
+
+      numbersContainer.innerHTML = '';
+      for (let i = 1; i <= 104; i++) {
+        const num = i < 10 ? '0' + i : '' + i;
+        const div = document.createElement('div');
+        div.textContent = num;
+        div.classList.add('number');
+
+        if (mapaReservado[num]) {
+          div.classList.add('reserved');
+          div.title = `Reservado por: ${mapaReservado[num]}`;
         } else {
-          numberDiv.onclick = () => toggleNumber(i, numberDiv);
+          div.onclick = () => toggleNumero(num, div);
         }
 
-        numbersContainer.appendChild(numberDiv);
+        numbersContainer.appendChild(div);
       }
     }
 
-    function toggleNumber(number, element) {
-      if (selectedNumbers.includes(number)) {
-        selectedNumbers = selectedNumbers.filter(n => n !== number);
-        element.style.backgroundColor = '#efe5d8';
+    function toggleNumero(num, el) {
+      if (selectedNumbers.includes(num)) {
+        selectedNumbers = selectedNumbers.filter(n => n !== num);
+        el.style.backgroundColor = '#efe5d8';
       } else {
-        selectedNumbers.push(number);
-        element.style.backgroundColor = '#d6cbb3';
+        selectedNumbers.push(num);
+        el.style.backgroundColor = '#d6cbb3';
       }
     }
 
-    function reserveNumbers() {
-      const name = document.getElementById('name').value.trim();
-      const phone = document.getElementById('phone').value.trim();
+    function reservar() {
+      const nome = document.getElementById('name').value.trim();
+      const telefone = document.getElementById('phone').value.trim();
 
-      if (!name || !phone || selectedNumbers.length === 0) {
-        alert('Preencha os dados e selecione pelo menos um número.');
+      if (!nome || !telefone || selectedNumbers.length === 0) {
+        alert('Preencha todos os campos e selecione ao menos um número.');
         return;
       }
 
-      const total = selectedNumbers.length * 25;
+      const reservas = getReservas();
+      const numerosReservados = reservas.flatMap(r => r.numeros);
 
-      const reservas = JSON.parse(localStorage.getItem('reservas')) || [];
-      reservas.push({ nome: name, telefone: phone, numeros: selectedNumbers });
+      const conflito = selectedNumbers.some(n => numerosReservados.includes(n));
+      if (conflito) {
+        alert('Um ou mais números selecionados já foram reservados.');
+        selectedNumbers = [];
+        renderNumeros();
+        return;
+      }
+
+      reservas.push({ nome, telefone, numeros: selectedNumbers });
       localStorage.setItem('reservas', JSON.stringify(reservas));
-
-      alert(`Reserva confirmada!\nNúmeros escolhidos: ${selectedNumbers.join(', ')}\nNome: ${name}\nTelefone: ${phone}\nValor total: R$${total},00`);
-
-      // Atualiza a div com QR Code
-      const qrDiv = document.getElementById('confirmacao-pagamento');
-      document.getElementById('imagem-qr').src = 'https://delicate-brioche-000c33.netlify.app/QRCODE.jpg'; // Substitua com sua imagem
-      document.getElementById('mensagem-qr').innerText = `Escaneie o QR Code acima para realizar o pagamento de R$${total},00 via Pix.\nApós o pagamento, envie o comprovante o WhatsApp 27998597050`;
-
-      qrDiv.style.display = 'block';
-
-      // Resetar seleção
+      alert('Reserva feita com sucesso!');
       selectedNumbers = [];
-      document.querySelectorAll('.number').forEach(el => el.style.backgroundColor = '#efe5d8');
+      renderNumeros();
     }
 
-    renderNumbers();
+    renderNumeros();
   </script>
 </body>
 </html>
