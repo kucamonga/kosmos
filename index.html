@@ -146,12 +146,12 @@
     <img src="https://delicate-brioche-000c33.netlify.app/Image.jpeg" alt="Decoração da Prateleira">
     <h1>Rifa do Chá de Bebê do Samir</h1>
     <p class="parents-info">Papai: Edgar &nbsp;&nbsp;|&nbsp;&nbsp; Mamãe: Eliene</p>
-    <p class="sorteio-info">Data do Sorteio: 14/06/2025 &nbsp;&nbsp;|&nbsp;&nbsp; Premiação: 1 Kit Cacau Show</p>
+    <p class="sorteio-info">Data do Sorteio: 20/06/2025 &nbsp;&nbsp;|&nbsp;&nbsp; Premiação: 1 Kit Cacau Show</p>
     <div class="arabesque"></div>
   </div>
 
   <div class="numbers-container" id="numbers"></div>
-  <button class="load-more" onclick="loadMoreNumbers()">Mostrar mais números</button>
+  <button class="load-more" id="loadMoreBtn" onclick="loadMoreNumbers()">Mostrar mais números</button>
 
   <div class="form-container">
     <input type="text" id="name" placeholder="Nome">
@@ -166,8 +166,9 @@
 
   <script>
     const numbersContainer = document.getElementById('numbers');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
     let selectedNumbers = [];
-    let renderedCount = 0;
+    let currentMax = 0;
 
     function getReservas() {
       return JSON.parse(localStorage.getItem('reservas')) || [];
@@ -179,7 +180,7 @@
       for (let i = start; i <= end; i++) {
         const numberDiv = document.createElement('div');
         numberDiv.className = 'number';
-        numberDiv.textContent = i < 10 ? `0${i}` : i;
+        numberDiv.textContent = i.toString().padStart(3, '0');
 
         const reserva = reservas.find(r => r.numeros.includes(i));
         if (reserva) {
@@ -192,16 +193,58 @@
         numbersContainer.appendChild(numberDiv);
       }
 
-      renderedCount = end;
-      if (renderedCount >= 300) {
-        document.querySelector('.load-more').style.display = 'none';
+      currentMax = end;
+      if (currentMax >= 300) {
+        loadMoreBtn.style.display = 'none';
       }
     }
 
     function loadMoreNumbers() {
-      const nextEnd = Math.min(renderedCount + 52, 300);
-      renderNumbers(renderedCount + 1, nextEnd);
+      renderNumbers(currentMax + 1, Math.min(currentMax + 52, 300));
     }
 
     function toggleNumber(number, element) {
-      if (selectedNumbers.includes(number))
+      if (selectedNumbers.includes(number)) {
+        selectedNumbers = selectedNumbers.filter(n => n !== number);
+        element.style.backgroundColor = '#efe5d8';
+      } else {
+        selectedNumbers.push(number);
+        element.style.backgroundColor = '#d6cbb3';
+      }
+    }
+
+    function reserveNumbers() {
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+
+      if (!name || !phone || selectedNumbers.length === 0) {
+        alert('Preencha os dados e selecione pelo menos um número.');
+        return;
+      }
+
+      const reservas = getReservas();
+      const reservados = new Set(reservas.flatMap(r => r.numeros));
+      const conflitos = selectedNumbers.filter(n => reservados.has(n));
+
+      if (conflitos.length > 0) {
+        alert(`Os seguintes números já foram reservados: ${conflitos.join(', ')}`);
+        return;
+      }
+
+      reservas.push({ nome: name, telefone: phone, numeros: [...selectedNumbers] });
+      localStorage.setItem('reservas', JSON.stringify(reservas));
+
+      const total = selectedNumbers.length * 25;
+      alert(`Reserva confirmada!\nNúmeros: ${selectedNumbers.join(', ')}\nNome: ${name}\nTelefone: ${phone}\nTotal: R$${total},00`);
+
+      numbersContainer.innerHTML = '';
+      selectedNumbers = [];
+      currentMax = 0;
+      renderNumbers(1, 104);
+    }
+
+    renderNumbers(1, 104);
+  </script>
+
+</body>
+</html>
