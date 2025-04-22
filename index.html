@@ -201,18 +201,45 @@
     }
 
     // Função para processar a reserva
-    function reserveNumbers() {
-      const name = document.getElementById('name').value.trim();
-      const phone = document.getElementById('phone').value.trim();
+    function reserveNumbers() {function reserveNumbers() {
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
 
-      if (!name || !phone || selectedNumbers.length === 0) {
-        alert('Preencha os dados e selecione pelo menos um número.');
-        return;
+  if (!name || !phone || selectedNumbers.length === 0) {
+    alert('Preencha os dados e selecione pelo menos um número.');
+    return;
+  }
+  }
+      
+
+
+  const total = selectedNumbers.length * 25; // R$25 por número
+
+  // Atualiza a interface e marca os números como reservados
+  selectedNumbers.forEach(num => {
+    reservedNumbers.add(num);
+
+    // Atualiza visualmente os números reservados
+    const allNumbers = document.querySelectorAll('.number');
+    allNumbers.forEach(el => {
+      if (parseInt(el.textContent) === num) {
+        el.classList.add('reserved');
+        el.style.backgroundColor = ''; // remove cor personalizada
+        el.style.cursor = 'not-allowed';
+        el.onclick = null;
       }
+    });
+  });
 
-      const total = selectedNumbers.length * 25; // R$25 por número
-      alert(`Reserva confirmada!\nNúmeros escolhidos: ${selectedNumbers.join(', ')}\nNome: ${name}\nTelefone: ${phone}\nValor total: R$${total},00`);
-    }
+  // Mostra mensagem de confirmação
+  alert(`Reserva confirmada!\nNúmeros escolhidos: ${selectedNumbers.join(', ')}\nNome: ${name}\nTelefone: ${phone}\nValor total: R$${total},00`);
+
+  // Limpa campos e seleção
+  document.getElementById('name').value = '';
+  document.getElementById('phone').value = '';
+  selectedNumbers = [];
+}
+
 
     // Inicia a renderização da grade
     renderNumbers();
