@@ -1,69 +1,153 @@
-<table border="1" cellpadding="8" cellspacing="0" style="margin: 20px auto; border-collapse: collapse; font-family: Arial; font-size: 14px;">
-  <thead style="background-color: #eaf1e6; color: #4d644d;">
-    <tr>
-      <th>Número</th>
-      <th>Nome</th>
-      <th>Telefone</th>
-      <th>Data/Hora</th>
-      <th>Ação</th>
-    </tr>
-  </thead>
-  <tbody id="lista-reservas"></tbody>
-</table>
-
-<script>
-  const lista = document.getElementById('lista-reservas');
-  const reservas = JSON.parse(localStorage.getItem('reservas')) || [];
-
-  reservas.forEach((r, i) => {
-    const tr = document.createElement('tr');
-
-    tr.innerHTML = `
-      <td>${String(r.numero).padStart(2, '0')}</td>
-      <td>${r.nome}</td>
-      <td>${r.telefone}</td>
-      <td>${r.data || ''}</td>
-      <td><button onclick="remover(${i})" style="padding: 4px 10px; cursor: pointer;">Desmarcar</button></td>
-    `;
-    lista.appendChild(tr);
-  });
-
-  function remover(index) {
-    if (confirm('Tem certeza que deseja remover essa reserva?')) {
-      reservas.splice(index, 1);
-      localStorage.setItem('reservas', JSON.stringify(reservas));
-      location.reload();
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reservas - Chá de Bebê do Samir</title>
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+      color: #333;
     }
-  }
-  function exportarCSV() {
-  const reservas = JSON.parse(localStorage.getItem('reservas')) || [];
-  if (reservas.length === 0) {
-    alert('Não há reservas para exportar.');
-    return;
-  }
 
-  const linhas = [
-    ['Número', 'Nome', 'Telefone', 'Data/Hora']
-  ];
+    h1 {
+      text-align: center;
+      color: #4c6a4c;
+    }
 
-  reservas.forEach(r => {
-    linhas.push([
-      String(r.numero).padStart(2, '0'),
-      r.nome,
-      r.telefone,
-      r.data || ''
-    ]);
-  });
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: white;
+    }
 
-  const csvContent = linhas.map(l => l.join(';')).join('\n');
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
 
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'reservas.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-}
+    th {
+      background-color: #dbe5db;
+      color: #333;
+    }
 
-</script>
+    button {
+      padding: 6px 10px;
+      background-color: #c94c4c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #a83838;
+    }
+
+    .export-btn {
+      margin-top: 15px;
+      padding: 10px 16px;
+      background-color: #4c6a4c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .export-btn:hover {
+      background-color: #3b563b;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Reservas - Chá de Bebê do Samir</h1>
+
+  <table id="reservaTabela">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Telefone</th>
+        <th>Número</th>
+        <th>Data</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button class="export-btn" onclick="exportCSV()">📁 Exportar CSV</button>
+
+  <script>
+    function carregarReservas() {
+      const tabela = document.querySelector("#reservaTabela tbody");
+      const reservas = JSON.parse(localStorage.getItem("reservas")) || [];
+
+      tabela.innerHTML = "";
+
+      reservas.forEach((reserva, i) => {
+        reserva.numeros.forEach(numero => {
+          const linha = document.createElement("tr");
+
+          linha.innerHTML = `
+            <td>${reserva.nome}</td>
+            <td>${reserva.telefone}</td>
+            <td>${numero < 10 ? '0' + numero : numero}</td>
+            <td>${reserva.data || '-'}</td>
+            <td><button onclick="remover(${i}, ${numero})">Remover</button></td>
+          `;
+
+          tabela.appendChild(linha);
+        });
+      });
+    }
+
+    function remover(index, numero) {
+      let reservas = JSON.parse(localStorage.getItem("reservas")) || [];
+
+      reservas[index].numeros = reservas[index].numeros.filter(n => n !== numero);
+
+      if (reservas[index].numeros.length === 0) {
+        reservas.splice(index, 1);
+      }
+
+      localStorage.setItem("reservas", JSON.stringify(reservas));
+      carregarReservas();
+    }
+
+    function exportCSV() {
+      const reservas = JSON.parse(localStorage.getItem("reservas")) || [];
+      let linhas = [["Nome", "Telefone", "Número", "Data"]];
+
+      reservas.forEach(reserva => {
+        reserva.numeros.forEach(numero => {
+          linhas.push([
+            reserva.nome,
+            reserva.telefone,
+            numero < 10 ? '0' + numero : numero,
+            reserva.data || '-'
+          ]);
+        });
+      });
+
+      const csv = linhas.map(l => l.join(";")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "reservas.csv";
+      a.click();
+
+      URL.revokeObjectURL(url);
+    }
+
+    carregarReservas();
+  </script>
+</body>
+</html>
