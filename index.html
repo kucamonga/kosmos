@@ -239,13 +239,8 @@
         alert(`Os seguintes números já foram reservados: ${conflitos.join(', ')}`);
         return;
       }
-      
-      const dataHora = new Date().toLocaleString('pt-BR');
-      selectedNumbers.forEach(number => {
-      reservas.push({ nome: name, telefone: phone, numeros: [...selectedNumbers], data: dataHora });
-      });
-      // reservas.push({ nome: name, telefone: phone, numeros: [...selectedNumbers] });
-      
+
+      reservas.push({ nome: name, telefone: phone, numeros: [...selectedNumbers] });
       localStorage.setItem('reservas', JSON.stringify(reservas));
 
       const total = selectedNumbers.length * 25;
@@ -253,13 +248,11 @@
 
       numbersContainer.innerHTML = '';
       selectedNumbers = [];
+      currentMax = 0;
       renderNumbers(1, 104);
-      
-      
     }
-  currentMax = 104;
-   
-  </script>
 
+    renderNumbers(1, 104);
+  </script>
 </body>
 </html>
