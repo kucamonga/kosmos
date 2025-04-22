@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rifa do Chá de Bebê do Samir</title>
   <style>
-    /* Configuração geral */
     body {
       font-family: 'Georgia', serif;
       background-color: #eaf1e6;
@@ -15,7 +14,6 @@
       text-align: center;
     }
 
-    /* Cabeçalho */
     .header {
       padding-top: 20px;
     }
@@ -32,7 +30,6 @@
       margin-bottom: 10px;
     }
 
-    /* Informações "Papai" e "Mamãe" */
     .parents-info {
       font-size: 18px;
       font-weight: bold;
@@ -53,7 +50,6 @@
       margin: 10px 0;
     }
 
-    /* Grade de números */
     .numbers-container {
       display: grid;
       grid-template-columns: repeat(13, 1fr);
@@ -91,7 +87,6 @@
       cursor: not-allowed;
     }
 
-    /* Formulário */
     .form-container {
       margin-top: 30px;
       display: flex;
@@ -123,7 +118,6 @@
       background-color: #567256;
     }
 
-    /* Rodapé */
     footer {
       margin-top: 20px;
       padding: 20px;
@@ -137,7 +131,7 @@
   </style>
 </head>
 <body>
-  <!-- Cabeçalho -->
+
   <div class="header">
     <img src="https://delicate-brioche-000c33.netlify.app/Image.jpeg" alt="Decoração da Prateleira">
     <h1>Rifa do Chá de Bebê do Samir</h1>
@@ -146,41 +140,40 @@
     <div class="arabesque"></div>
   </div>
 
-  <!-- Grade de Números -->
-  <div class="numbers-container" id="numbers">
-    <!-- Os números serão gerados dinamicamente -->
-  </div>
+  <div class="numbers-container" id="numbers"></div>
 
-  <!-- Formulário -->
   <div class="form-container">
     <input type="text" id="name" placeholder="Nome">
     <input type="tel" id="phone" placeholder="Telefone">
     <button onclick="reserveNumbers()">Reservar</button>
   </div>
 
-  <!-- Rodapé -->
   <footer>
     <div class="arabesque"></div>
     <p>Nós três ficamos muito felizes pelo seu apoio e carinho. Gràdtãtâo!!!</p>
   </footer>
 
   <script>
-    // Variáveis
     const numbersContainer = document.getElementById('numbers');
-    const reservedNumbers = new Set(); // Simulação de números reservados
-    let selectedNumbers = []; // Lista de números selecionados
+    let selectedNumbers = [];
 
-    // Gera a grade de números
+    function getReservas() {
+      return JSON.parse(localStorage.getItem('reservas')) || [];
+    }
+
     function renderNumbers() {
+      const reservas = getReservas();
+
       for (let i = 1; i <= 104; i++) {
         const numberDiv = document.createElement('div');
         numberDiv.className = 'number';
         numberDiv.textContent = i < 10 ? `0${i}` : i;
 
-        // Caso seja um número já reservado
-        if (reservedNumbers.has(i)) {
+        const reserva = reservas.find(r => r.numeros.includes(i));
+
+        if (reserva) {
           numberDiv.classList.add('reserved');
-          numberDiv.title = 'Número já reservado';
+          numberDiv.title = `Reservado por: ${reserva.nome}`;
         } else {
           numberDiv.onclick = () => toggleNumber(i, numberDiv);
         }
@@ -189,7 +182,6 @@
       }
     }
 
-    // Alterna seleção de números
     function toggleNumber(number, element) {
       if (selectedNumbers.includes(number)) {
         selectedNumbers = selectedNumbers.filter(n => n !== number);
@@ -200,49 +192,43 @@
       }
     }
 
-    // Função para processar a reserva
-    function reserveNumbers() {function reserveNumbers() {
-  const name = document.getElementById('name').value.trim();
-  const phone = document.getElementById('phone').value.trim();
+    function reserveNumbers() {
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
 
-  if (!name || !phone || selectedNumbers.length === 0) {
-    alert('Preencha os dados e selecione pelo menos um número.');
-    return;
-  }
-  }
-      
-
-
-  const total = selectedNumbers.length * 25; // R$25 por número
-
-  // Atualiza a interface e marca os números como reservados
-  selectedNumbers.forEach(num => {
-    reservedNumbers.add(num);
-
-    // Atualiza visualmente os números reservados
-    const allNumbers = document.querySelectorAll('.number');
-    allNumbers.forEach(el => {
-      if (parseInt(el.textContent) === num) {
-        el.classList.add('reserved');
-        el.style.backgroundColor = ''; // remove cor personalizada
-        el.style.cursor = 'not-allowed';
-        el.onclick = null;
+      if (!name || !phone || selectedNumbers.length === 0) {
+        alert('Preencha os dados e selecione pelo menos um número.');
+        return;
       }
-    });
-  });
 
-  // Mostra mensagem de confirmação
-  alert(`Reserva confirmada!\nNúmeros escolhidos: ${selectedNumbers.join(', ')}\nNome: ${name}\nTelefone: ${phone}\nValor total: R$${total},00`);
+      const reservas = getReservas();
 
-  // Limpa campos e seleção
-  document.getElementById('name').value = '';
-  document.getElementById('phone').value = '';
-  selectedNumbers = [];
-}
+      // Evitar duplicidade
+      const novosReservados = new Set(reservas.flatMap(r => r.numeros));
+      const conflitados = selectedNumbers.filter(n => novosReservados.has(n));
+      if (conflitados.length > 0) {
+        alert(`Os seguintes números já foram reservados: ${conflitados.join(', ')}`);
+        return;
+      }
 
+      // Salvar reserva
+      reservas.push({ nome: name, telefone: phone, numeros: [...selectedNumbers] });
+      localStorage.setItem('reservas', JSON.stringify(reservas));
 
-    // Inicia a renderização da grade
+      const total = selectedNumbers.length * 25;
+      alert(`Reserva confirmada!\nNúmeros: ${selectedNumbers.join(', ')}\nNome: ${name}\nTelefone: ${phone}\nTotal: R$${total},00`);
+
+      // Atualizar UI
+      numbersContainer.innerHTML = '';
+      selectedNumbers = [];
+      renderNumbers();
+
+      document.getElementById('name').value = '';
+      document.getElementById('phone').value = '';
+    }
+
     renderNumbers();
   </script>
+
 </body>
 </html>
