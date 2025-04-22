@@ -6,118 +6,114 @@
   <title>Reservas - Chá de Bebê do Samir</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f8f2;
-      padding: 20px;
+      font-family: 'Arial', sans-serif;
+      background-color: #f3f7f1;
       color: #333;
+      padding: 20px;
+      text-align: center;
     }
 
     h1 {
-      text-align: center;
       margin-bottom: 20px;
-      color: #4d644d;
     }
 
     table {
       width: 100%;
+      max-width: 800px;
+      margin: 0 auto 30px auto;
       border-collapse: collapse;
-      margin: 0 auto;
-      background-color: white;
     }
 
     th, td {
-      padding: 10px;
       border: 1px solid #ccc;
-      text-align: center;
+      padding: 8px;
+      font-size: 14px;
     }
 
     th {
-      background-color: #dce9dc;
-      color: #3d533d;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
+      background-color: #e1efe1;
     }
 
     button {
-      background-color: #c0392b;
-      color: white;
+      margin: 10px 5px;
+      padding: 8px 14px;
+      font-size: 14px;
       border: none;
-      padding: 6px 12px;
+      background-color: #6b8a6b;
+      color: white;
       border-radius: 4px;
       cursor: pointer;
     }
 
     button:hover {
-      background-color: #a93226;
+      background-color: #567256;
+    }
+
+    .empty-msg {
+      margin-top: 40px;
+      color: #888;
     }
   </style>
 </head>
 <body>
-
-  <h1>Reservas da Rifa</h1>
-
-  <table id="tabela-reservas">
-    <thead>
-      <tr>
-        <th>Número</th>
-        <th>Nome</th>
-        <th>Telefone</th>
-        <th>Ação</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Preenchido dinamicamente -->
-    </tbody>
-  </table>
+  <h1>Lista de Reservas</h1>
+  <div id="reserva-container"></div>
+  <button onclick="exportarCSV()">Exportar Reservas</button>
 
   <script>
-    function getReservas() {
-      return JSON.parse(localStorage.getItem('reservas')) || [];
-    }
+    const container = document.getElementById('reserva-container');
+    let reservas = JSON.parse(localStorage.getItem('reservas')) || [];
 
-    function salvarReservas(reservas) {
-      localStorage.setItem('reservas', JSON.stringify(reservas));
-    }
-
-    function exibirReservas() {
-      const tbody = document.querySelector("#tabela-reservas tbody");
-      tbody.innerHTML = "";
-
-      const reservas = getReservas();
-
-      reservas.forEach((reserva, indexReserva) => {
-        reserva.numeros.forEach((numero, idxNumero) => {
-          const tr = document.createElement("tr");
-
-          tr.innerHTML = `
-            <td>${numero < 10 ? "0" + numero : numero}</td>
-            <td>${reserva.nome}</td>
-            <td>${reserva.telefone}</td>
-            <td><button onclick="removerReserva(${indexReserva}, ${numero})">Remover</button></td>
-          `;
-
-          tbody.appendChild(tr);
-        });
-      });
-    }
-
-    function removerReserva(indexReserva, numero) {
-      const reservas = getReservas();
-
-      reservas[indexReserva].numeros = reservas[indexReserva].numeros.filter(n => n !== numero);
-
-      if (reservas[indexReserva].numeros.length === 0) {
-        reservas.splice(indexReserva, 1);
+    function renderTabela() {
+      if (reservas.length === 0) {
+        container.innerHTML = '<p class="empty-msg">Nenhuma reserva feita ainda.</p>';
+        return;
       }
 
-      salvarReservas(reservas);
-      exibirReservas();
+      let html = '<table><thead><tr><th>Nome</th><th>Telefone</th><th>Números</th><th>Ações</th></tr></thead><tbody>';
+
+      reservas.forEach((reserva, index) => {
+        html += `<tr>
+          <td>${reserva.nome}</td>
+          <td>${reserva.telefone}</td>
+          <td>${reserva.numeros.join(', ')}</td>
+          <td><button onclick="removerReserva(${index})">Remover</button></td>
+        </tr>`;
+      });
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
     }
 
-    exibirReservas();
-  </script>
+    function removerReserva(index) {
+      if (confirm('Deseja realmente remover esta reserva?')) {
+        reservas.splice(index, 1);
+        localStorage.setItem('reservas', JSON.stringify(reservas));
+        renderTabela();
+      }
+    }
 
+    function exportarCSV() {
+      if (reservas.length === 0) {
+        alert("Não há reservas para exportar.");
+        return;
+      }
+
+      let csv = "Nome,Telefone,Números\n";
+      reservas.forEach(reserva => {
+        csv += `"${reserva.nome}","${reserva.telefone}","${reserva.numeros.join(' - ')}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'reservas-samir.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    renderTabela();
+  </script>
 </body>
 </html>
