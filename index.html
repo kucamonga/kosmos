@@ -239,8 +239,12 @@
         alert(`Os seguintes números já foram reservados: ${conflitos.join(', ')}`);
         return;
       }
-
-      reservas.push({ nome: name, telefone: phone, numeros: [...selectedNumbers] });
+      const dataHora = new Date().toLocaleString('pt-BR');
+      selectedNumbers.forEach(numero => {
+      reservas.push({ nome: name, telefone: phone, numero: numero, data: dataHora });
+      });
+      
+     // reservas.push({ nome: name, telefone: phone, numeros: [...selectedNumbers] });
       localStorage.setItem('reservas', JSON.stringify(reservas));
 
       const total = selectedNumbers.length * 25;
