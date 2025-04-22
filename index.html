@@ -10,22 +10,55 @@
       background-color: #eaf1e6;
       color: #4d644d;
       margin: 0;
-      padding: 20px;
+      padding: 0;
       text-align: center;
     }
 
-    h1 {
+    .header {
+      padding-top: 20px;
+    }
+
+    .header img {
+      max-width: 320px;
+      width: 100%;
+      height: auto;
       margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .parents-info {
+      font-size: 18px;
+      font-weight: bold;
+      color: #567256;
+      margin-bottom: 10px;
+    }
+
+    .sorteio-info {
+      font-size: 16px;
+      color: #6d856d;
+      margin-bottom: 30px;
+    }
+
+    .arabesque {
+      background: url('https://delicate-brioche-000c33.netlify.app/premio.jpeg') no-repeat center;
+      background-size: contain;
+      height: 30px;
+      margin: 10px 0;
     }
 
     .numbers-container {
       display: grid;
       grid-template-columns: repeat(13, 1fr);
       gap: 10px;
-      max-width: 800px;
-      margin: 0 auto 30px auto;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 20px 10px;
       background-color: #f5f1e5;
-      padding: 20px;
+      border: 1px solid #d1cfc3;
       border-radius: 8px;
     }
 
@@ -33,14 +66,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 40px;
       background-color: #efe5d8;
       color: #4c6a4c;
+      font-size: 14px;
       font-weight: bold;
-      border: 1px solid #cbbda3;
-      border-radius: 6px;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid #d1c2aa;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background-color 0.3s ease-in-out;
     }
 
     .number:hover {
@@ -48,48 +82,76 @@
     }
 
     .number.reserved {
-      background-color: #ccc;
-      color: #666;
+      background-color: #d9d9d9;
+      color: #8c8c8c;
       cursor: not-allowed;
     }
 
     .form-container {
-      margin-top: 20px;
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
     }
 
-    input {
-      padding: 8px;
-      margin: 5px;
+    .form-container input {
+      padding: 10px;
       border-radius: 5px;
-      border: 1px solid #cbbda3;
+      border: 1.8px solid #cbbda3;
+      background-color: #fefcf8;
+      font-size: 14px;
+      width: 180px;
     }
 
-    button {
-      padding: 8px 15px;
-      border: none;
+    .form-container button {
       background-color: #6b8a6b;
       color: white;
-      border-radius: 5px;
+      font-size: 16px;
+      padding: 8px 20px;
+      border: none;
       cursor: pointer;
-      font-size: 15px;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
     }
 
-    button:hover {
+    .form-container button:hover {
       background-color: #567256;
+    }
+
+    footer {
+      margin-top: 20px;
+      padding: 20px;
+      background: #eaf1e6;
+      color: #4d644d;
+    }
+
+    footer .arabesque {
+      margin: 20px auto;
     }
   </style>
 </head>
 <body>
-  <h1>Rifa do Chá de Bebê do Samir</h1>
-  <p>Papai: Edgar | Mamãe: Eliene</p>
+
+  <div class="header">
+    <img src="https://delicate-brioche-000c33.netlify.app/Image.jpeg" alt="Decoração da Prateleira">
+    <h1>Rifa do Chá de Bebê do Samir</h1>
+    <p class="parents-info">Papai: Edgar &nbsp;&nbsp;|&nbsp;&nbsp; Mamãe: Eliene</p>
+    <p class="sorteio-info">Data do Sorteio: 20/06/2025 &nbsp;&nbsp;|&nbsp;&nbsp; Premiação: 1 Kit Cacau Show</p>
+    <div class="arabesque"></div>
+  </div>
 
   <div class="numbers-container" id="numbers"></div>
 
   <div class="form-container">
-    <input type="text" id="name" placeholder="Seu nome" />
-    <input type="tel" id="phone" placeholder="Seu telefone" />
-    <button onclick="reservar()">Reservar</button>
+    <input type="text" id="name" placeholder="Nome">
+    <input type="tel" id="phone" placeholder="Telefone">
+    <button onclick="reserveNumbers()">Reservar</button>
   </div>
+
+  <footer>
+    <div class="arabesque"></div>
+    <p>Nós três ficamos muito felizes pelo seu apoio e carinho. Gràdtãtâo!!!</p>
+  </footer>
 
   <script>
     const numbersContainer = document.getElementById('numbers');
@@ -99,72 +161,74 @@
       return JSON.parse(localStorage.getItem('reservas')) || [];
     }
 
-    function renderNumeros() {
+    function renderNumbers() {
       const reservas = getReservas();
-      const mapaReservado = {};
 
-      reservas.forEach(r => {
-        r.numeros.forEach(n => {
-          mapaReservado[n] = r.nome;
-        });
-      });
-
-      numbersContainer.innerHTML = '';
       for (let i = 1; i <= 104; i++) {
-        const num = i < 10 ? '0' + i : '' + i;
-        const div = document.createElement('div');
-        div.textContent = num;
-        div.classList.add('number');
+        const numberDiv = document.createElement('div');
+        numberDiv.className = 'number';
+        numberDiv.textContent = i < 10 ? `0${i}` : i;
 
-        if (mapaReservado[num]) {
-          div.classList.add('reserved');
-          div.title = `Reservado por: ${mapaReservado[num]}`;
+        const reserva = reservas.find(r => r.numeros.includes(i));
+
+        if (reserva) {
+          numberDiv.classList.add('reserved');
+          numberDiv.title = `Reservado por: ${reserva.nome}`;
         } else {
-          div.onclick = () => toggleNumero(num, div);
+          numberDiv.onclick = () => toggleNumber(i, numberDiv);
         }
 
-        numbersContainer.appendChild(div);
+        numbersContainer.appendChild(numberDiv);
       }
     }
 
-    function toggleNumero(num, el) {
-      if (selectedNumbers.includes(num)) {
-        selectedNumbers = selectedNumbers.filter(n => n !== num);
-        el.style.backgroundColor = '#efe5d8';
+    function toggleNumber(number, element) {
+      if (selectedNumbers.includes(number)) {
+        selectedNumbers = selectedNumbers.filter(n => n !== number);
+        element.style.backgroundColor = '#efe5d8';
       } else {
-        selectedNumbers.push(num);
-        el.style.backgroundColor = '#d6cbb3';
+        selectedNumbers.push(number);
+        element.style.backgroundColor = '#d6cbb3';
       }
     }
 
-    function reservar() {
-      const nome = document.getElementById('name').value.trim();
-      const telefone = document.getElementById('phone').value.trim();
+    function reserveNumbers() {
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
 
-      if (!nome || !telefone || selectedNumbers.length === 0) {
-        alert('Preencha todos os campos e selecione ao menos um número.');
+      if (!name || !phone || selectedNumbers.length === 0) {
+        alert('Preencha os dados e selecione pelo menos um número.');
         return;
       }
 
       const reservas = getReservas();
-      const numerosReservados = reservas.flatMap(r => r.numeros);
 
-      const conflito = selectedNumbers.some(n => numerosReservados.includes(n));
-      if (conflito) {
-        alert('Um ou mais números selecionados já foram reservados.');
-        selectedNumbers = [];
-        renderNumeros();
+      // Evitar duplicidade
+      const novosReservados = new Set(reservas.flatMap(r => r.numeros));
+      const conflitados = selectedNumbers.filter(n => novosReservados.has(n));
+      if (conflitados.length > 0) {
+        alert(`Os seguintes números já foram reservados: ${conflitados.join(', ')}`);
         return;
       }
 
-      reservas.push({ nome, telefone, numeros: selectedNumbers });
+      // Salvar reserva
+      reservas.push({ nome: name, telefone: phone, numeros: [...selectedNumbers] });
       localStorage.setItem('reservas', JSON.stringify(reservas));
-      alert('Reserva feita com sucesso!');
+
+      const total = selectedNumbers.length * 25;
+      alert(`Reserva confirmada!\nNúmeros: ${selectedNumbers.join(', ')}\nNome: ${name}\nTelefone: ${phone}\nTotal: R$${total},00`);
+
+      // Atualizar UI
+      numbersContainer.innerHTML = '';
       selectedNumbers = [];
-      renderNumeros();
+      renderNumbers();
+
+      document.getElementById('name').value = '';
+      document.getElementById('phone').value = '';
     }
 
-    renderNumeros();
+    renderNumbers();
   </script>
+
 </body>
 </html>
