@@ -82,7 +82,7 @@
     }
 
     .number.reserved {
-      background-color: #d9d9d9 !important;
+      background-color: #d9d9d9;
       color: #8c8c8c;
       cursor: not-allowed;
     }
@@ -92,7 +92,6 @@
       display: flex;
       justify-content: center;
       gap: 10px;
-      flex-wrap: wrap;
     }
 
     .form-container input {
@@ -119,28 +118,31 @@
       background-color: #567256;
     }
 
-    .load-more {
-      margin-top: 15px;
+    .show-more {
+      margin: 20px;
+      font-size: 20px;
+      background: none;
+      border: none;
       cursor: pointer;
       color: #4d644d;
-      font-weight: bold;
     }
 
-    .qrcode-message {
-      margin: 30px auto;
-      max-width: 340px;
-      text-align: center;
+    .qrcode-container {
+      margin-top: 40px;
     }
 
-    .qrcode-message img {
-      width: 100%;
-      max-width: 300px;
-      border-radius: 10px;
-      margin-top: 15px;
+    .qrcode-container img {
+      width: 220px;
+      margin-bottom: 10px;
+    }
+
+    .qrcode-container p {
+      font-size: 16px;
+      color: #567256;
     }
 
     footer {
-      margin-top: 20px;
+      margin-top: 40px;
       padding: 20px;
       background: #eaf1e6;
       color: #4d644d;
@@ -162,7 +164,7 @@
   </div>
 
   <div class="numbers-container" id="numbers"></div>
-  <div class="load-more" onclick="loadMore()">⬇️ Carregar mais números</div>
+  <button class="show-more" onclick="carregarMais()">⬇️ Mostrar mais</button>
 
   <div class="form-container">
     <input type="text" id="name" placeholder="Nome">
@@ -170,9 +172,9 @@
     <button onclick="reserveNumbers()">Reservar</button>
   </div>
 
-  <div class="qrcode-message" id="qrcode-container" style="display: none;">
-    <p><strong>Envie o comprovante do pagamento via WhatsApp:</strong><br>+55 27 99859-7050</p>
-    <img src="https://delicate-brioche-000c33.netlify.app/QRCODE.jpg" alt="QR Code PIX">
+  <div class="qrcode-container">
+    <img src="https://delicate-brioche-000c33.netlify.app/QRCODE.jpg" alt="QR Code Pix">
+    <p>Após reservar, realize o pagamento via Pix com este QR Code<br>e envie o comprovante para <strong>+55 27 99859-7050</strong></p>
   </div>
 
   <footer>
@@ -182,26 +184,25 @@
 
   <script>
     const numbersContainer = document.getElementById('numbers');
-    const qrcodeContainer = document.getElementById('qrcode-container');
     let selectedNumbers = [];
-    let currentMax = 104;
+    let quantidadeCarregada = 0;
+    const maximo = 300;
+    const porLote = 52;
 
     function getReservas() {
       return JSON.parse(localStorage.getItem('reservas')) || [];
     }
 
-    function renderNumbers() {
+    function renderNumbers(inicio, fim) {
       const reservas = getReservas();
 
-      for (let i = 1; i <= currentMax; i++) {
-        if (document.getElementById('num-' + i)) continue;
-
+      for (let i = inicio; i <= fim; i++) {
         const numberDiv = document.createElement('div');
         numberDiv.className = 'number';
-        numberDiv.id = 'num-' + i;
         numberDiv.textContent = i < 10 ? `0${i}` : i;
 
         const reserva = reservas.find(r => r.numeros.includes(i));
+
         if (reserva) {
           numberDiv.classList.add('reserved');
           numberDiv.title = `Reservado por: ${reserva.nome}`;
@@ -210,14 +211,6 @@
         }
 
         numbersContainer.appendChild(numberDiv);
-      }
-    }
-
-    function loadMore() {
-      if (currentMax < 300) {
-        currentMax += 26;
-        if (currentMax > 300) currentMax = 300;
-        renderNumbers();
       }
     }
 
@@ -231,6 +224,12 @@
       }
     }
 
+    function carregarMais() {
+      const proximoFim = Math.min(quantidadeCarregada + porLote, maximo);
+      renderNumbers(quantidadeCarregada + 1, proximoFim);
+      quantidadeCarregada = proximoFim;
+    }
+
     function reserveNumbers() {
       const name = document.getElementById('name').value.trim();
       const phone = document.getElementById('phone').value.trim();
@@ -241,32 +240,38 @@
       }
 
       const reservas = getReservas();
-      const reservadosExistentes = new Set(reservas.flatMap(r => r.numeros));
-      const conflito = selectedNumbers.filter(n => reservadosExistentes.has(n));
 
-      if (conflito.length > 0) {
-        alert(`Os seguintes números já estão reservados: ${conflito.join(', ')}`);
+      const novosReservados = new Set(reservas.flatMap(r => r.numeros));
+      const conflitados = selectedNumbers.filter(n => novosReservados.has(n));
+      if (conflitados.length > 0) {
+        alert(`Os seguintes números já foram reservados: ${conflitados.join(', ')}`);
         return;
       }
 
-      const data = new Date().toLocaleString();
-      reservas.push({ nome: name, telefone: phone, numeros: [...selectedNumbers], data });
+      const dataAtual = new Date().toLocaleDateString('pt-BR');
+
+      reservas.push({
+        nome: name,
+        telefone: phone,
+        numeros: [...selectedNumbers],
+        data: dataAtual
+      });
+
       localStorage.setItem('reservas', JSON.stringify(reservas));
 
       const total = selectedNumbers.length * 25;
-      alert(`Reserva confirmada!\nNome: ${name}\nTelefone: ${phone}\nNúmeros: ${selectedNumbers.join(', ')}\nTotal: R$${total},00`);
+      alert(`Reserva confirmada!\nNúmeros: ${selectedNumbers.join(', ')}\nNome: ${name}\nTelefone: ${phone}\nTotal: R$${total},00`);
 
-      qrcodeContainer.style.display = 'block';
-
-      // Resetar
       numbersContainer.innerHTML = '';
       selectedNumbers = [];
-      renderNumbers();
+      quantidadeCarregada = 0;
+      carregarMais();
+
       document.getElementById('name').value = '';
       document.getElementById('phone').value = '';
     }
 
-    renderNumbers();
+    carregarMais();
   </script>
 </body>
 </html>
