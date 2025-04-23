@@ -175,7 +175,7 @@
       getReservas().then(reservas => {
         for (let i = start; i <= end; i++) {
           const numberDiv = document.createElement('div');
-          numberDiv.className = 'number';
+          numberDiv.className = 'numeros';
           numberDiv.textContent = i.toString().padStart(3, '0');
 
           const reserva = reservas.find(r => r.numeros.includes(i));
