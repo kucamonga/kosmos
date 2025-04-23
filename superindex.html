@@ -120,7 +120,7 @@
   let currentMax = 0;
   let reservasCache = [];
 
-  // Corrigido aqui:
+  // URL do seu Google Apps Script (script de backend)
   const scriptURL = 'https://script.google.com/macros/s/AKfycbzAnYaxq2z2yAt9sGtuPj4vhp3_NDmD2eUCQUnsuafJvM9Kr6q0ZXjPyq6OGUfprdH01A/exec';
 
   async function getReservas() {
@@ -143,9 +143,11 @@
 
       const reservado = reservasCache.find(r => r.numeros.includes(i));
       if (reservado) {
+        // Se o número estiver reservado, desabilitar e adicionar classe "reserved"
         numberDiv.classList.add('reserved');
         numberDiv.title = `Reservado por: ${reservado.nome}`;
       } else {
+        // Se o número não estiver reservado, permitir clicar para seleção
         numberDiv.onclick = () => toggleNumber(i, numberDiv);
       }
 
