@@ -173,31 +173,48 @@
         });
     }
 
-    function renderNumbers(start, end) {
-      getReservas().then(data => {
-        const reservas = data || [];
-        for (let i = start; i <= end; i++) {
-          const numberDiv = document.createElement('div');
-          numberDiv.className = 'number';
-          numberDiv.textContent = i.toString().padStart(3, '0');
+    function reserveNumbers() {
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
 
-          const reservado = reservas.find(r => r.numeros.includes(i));
-          if (reservado) {
-            numberDiv.classList.add('reserved');
-            numberDiv.title = `Reservado por: ${reservado.nome}`;
-          } else {
-            numberDiv.onclick = () => toggleNumber(i, numberDiv);
-          }
+  if (!name || !phone || selectedNumbers.length === 0) {
+    alert('Preencha os dados e selecione pelo menos um número.');
+    return;
+  }
 
-          numbersContainer.appendChild(numberDiv);
-        }
+  const dataHora = new Date().toLocaleString('pt-BR');
 
-        currentMax = end;
-        if (currentMax >= 300) {
-          loadMoreBtn.style.display = 'none';
-        }
-      });
+  fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      nome: name,
+      telefone: phone,
+      numeros: selectedNumbers,
+      data: dataHora,
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.result === 'success') {
+      const total = selectedNumbers.length * 25;
+      alert(`Reserva confirmada!\nNúmeros: ${selectedNumbers.join(', ')}\nNome: ${name}\nTelefone: ${phone}\nTotal: R$${total},00`);
+      document.getElementById('name').value = '';
+      document.getElementById('phone').value = '';
+      selectedNumbers = [];
+      numbersContainer.innerHTML = '';
+      currentMax = 0;
+      renderNumbers(1, 104);
+    } else {
+      alert('Erro ao salvar a reserva: ' + (data.message || 'Erro desconhecido'));
     }
+  })
+  .catch(() => {
+    alert('Erro ao salvar a reserva. Tente novamente.');
+  });
+}
 
     function loadMoreNumbers() {
       renderNumbers(currentMax + 1, Math.min(currentMax + 52, 300));
