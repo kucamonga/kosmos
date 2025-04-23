@@ -13,43 +13,10 @@
       padding: 0;
       text-align: center;
     }
-
-    .header {
-      padding-top: 20px;
-    }
-
     .header img {
       max-width: 320px;
-      width: 100%;
-      height: auto;
       margin-bottom: 10px;
     }
-
-    h1 {
-      font-size: 28px;
-      margin-bottom: 10px;
-    }
-
-    .parents-info {
-      font-size: 18px;
-      font-weight: bold;
-      color: #567256;
-      margin-bottom: 10px;
-    }
-
-    .sorteio-info {
-      font-size: 16px;
-      color: #6d856d;
-      margin-bottom: 30px;
-    }
-
-    .arabesque {
-      background: url('https://kosmoverso.netlify.app/premio.jpeg') no-repeat center;
-      background-size: contain;
-      height: 250px;
-      margin: 100px 0;
-    }
-
     .numbers-container {
       display: grid;
       grid-template-columns: repeat(13, 1fr);
@@ -61,7 +28,6 @@
       border: 1px solid #d1cfc3;
       border-radius: 8px;
     }
-
     .number {
       display: flex;
       align-items: center;
@@ -74,26 +40,21 @@
       border-radius: 8px;
       border: 1px solid #d1c2aa;
       cursor: pointer;
-      transition: background-color 0.3s ease-in-out;
     }
-
     .number:hover {
       background-color: #d6cbb3;
     }
-
     .number.reserved {
       background-color: #d9d9d9;
       color: #8c8c8c;
       cursor: not-allowed;
     }
-
     .form-container {
       margin-top: 30px;
       display: flex;
       justify-content: center;
       gap: 10px;
     }
-
     .form-container input {
       padding: 10px;
       border-radius: 5px;
@@ -102,7 +63,6 @@
       font-size: 14px;
       width: 180px;
     }
-
     .form-container button {
       background-color: #6b8a6b;
       color: white;
@@ -111,50 +71,31 @@
       border: none;
       cursor: pointer;
       border-radius: 5px;
-      transition: background-color 0.3s ease;
     }
-
     .form-container button:hover {
       background-color: #567256;
     }
-
     .load-more {
       margin-top: 15px;
-      font-size: 14px;
-      background-color: transparent;
+      background: none;
       border: none;
       color: #4c6a4c;
       cursor: pointer;
       text-decoration: underline;
     }
-
-    footer {
-      margin-top: 20px;
-      padding: 20px;
-      background: #eaf1e6;
-      color: #4d644d;
-    }
-
-    footer .arabesque {
-      margin: 20px auto;
-    }
   </style>
 </head>
 <body>
-
   <div class="header">
-    <img src="https://kosmoverso.netlify.app/Image.jpeg" alt="Decoração da Prateleira">
+    <img src="https://kosmoverso.netlify.app/Image.jpeg" alt="Decoração">
     <h1>Rifa do Chá de Bebê do Samir</h1>
-    <p class="parents-info">Papai: Edgar &nbsp;&nbsp;|&nbsp;&nbsp; Mamãe: Eliene</p>
-    <p class="sorteio-info">Data do Sorteio: 14/06/2025 &nbsp;&nbsp;|&nbsp;&nbsp; Premiação: 1 Kit Cacau Show</p>
-    <div class="arabesque"></div>
+    <p>Papai: Edgar | Mamãe: Eliene</p>
+    <p>Data do Sorteio: 14/06/2025 | Prêmio: Kit Cacau Show</p>
   </div>
 
-  <h2 style="font-size: 18px; color: #4d644d; margin-bottom: 10px;">
-    Escolha seu(s) número(s) da sorte de 1 a 300 - Cada número no valor de R$ 25,00.
-  </h2>
+  <h2>Escolha seu(s) número(s) de 1 a 300 - R$ 25,00 cada</h2>
   <div class="numbers-container" id="numbers"></div>
-  <button class="load-more" id="loadMoreBtn" onclick="loadMoreNumbers()">Mostrar mais números</button>
+  <button class="load-more" onclick="loadMoreNumbers()">Mostrar mais números</button>
 
   <div class="form-container">
     <input type="text" id="name" placeholder="Nome">
@@ -162,128 +103,98 @@
     <button onclick="reserveNumbers()">Reservar</button>
   </div>
 
-  <div style="margin: 40px auto; text-align: center;">
-    <h3 style="color: #4d644d;">Faça o PIX para confirmar sua reserva</h3>
-    <p style="font-size: 16px; color: #567256;">
-      Após realizar o pagamento, envie o comprovante para o WhatsApp:
-      <strong><a href="https://wa.me/5527998597050" target="_blank" style="color: #4d644d; text-decoration: underline;">+55 27 99859-7050</a></strong><br><br>
-      <strong>Click no QRCode para copiar a chave PIX</strong>
-    </p>
-    <img src="https://kosmoverso.netlify.app/QRCODE.jpg" 
-         alt="QR Code para PIX" 
-         onclick="copiarCodigoPix()" 
-         style="max-width: 150px; width: 100%; margin-top: 20px; border: 2px solid #d1cfc3; border-radius: 8px; cursor: pointer;"
-         title="Clique para copiar o código PIX"><br><br>
-    <p id="copiado" style="color: green; font-size: 14px; display: none; margin-top: 5px;">Código PIX copiado!</p>
-  </div>
-
-  <footer>
-    <div class="arabesque"></div>
-    <p>Nós três ficamos muito felizes pelo seu apoio e carinho. Gratidão!!!</p>
-  </footer>
-
   <script>
+    const apiURL = "https://script.google.com/macros/s/AKfycbxr_AjNCe7_HQp44SgxeJ5e8eGb0-w7r2qxhu2ZlhX0dBqxdTyBH4eudcaZp-O0Habt/exec";
     const numbersContainer = document.getElementById('numbers');
-    const loadMoreBtn = document.getElementById('loadMoreBtn');
-    let selectedNumbers = JSON.parse(localStorage.getItem('selecionadosTemporarios')) || [];
+    let selectedNumbers = [];
     let currentMax = 0;
+    let reservas = [];
 
-    function getReservas() {
-      return JSON.parse(localStorage.getItem('reservas')) || [];
+    async function fetchReservas() {
+      try {
+        const res = await fetch(apiURL);
+        reservas = await res.json();
+        renderNumbers(currentMax + 1, Math.min(currentMax + 52, 300));
+      } catch (err) {
+        alert("Erro ao carregar reservas. Verifique sua conexão.");
+      }
     }
 
     function renderNumbers(start, end) {
-      const reservas = getReservas();
-
       for (let i = start; i <= end; i++) {
-        const numberDiv = document.createElement('div');
-        numberDiv.className = 'number';
+        const numberDiv = document.createElement("div");
+        numberDiv.className = "number";
         numberDiv.textContent = i.toString().padStart(3, '0');
 
-        const reserva = reservas.find(r => r.numeros.includes(i));
-        if (reserva) {
-          numberDiv.classList.add('reserved');
-          numberDiv.title = `Reservado por: ${reserva.nome}`;
+        const isReserved = reservas.some(r => r.numeros.includes(i));
+        if (isReserved) {
+          numberDiv.classList.add("reserved");
         } else {
-          if (selectedNumbers.includes(i)) {
-            numberDiv.style.backgroundColor = '#d6cbb3';
-          }
-
           numberDiv.onclick = () => toggleNumber(i, numberDiv);
         }
 
         numbersContainer.appendChild(numberDiv);
       }
-
       currentMax = end;
-      if (currentMax >= 300) {
-        loadMoreBtn.style.display = 'none';
-      }
     }
 
     function loadMoreNumbers() {
       renderNumbers(currentMax + 1, Math.min(currentMax + 52, 300));
     }
 
-    function toggleNumber(number, element) {
+    function toggleNumber(number, el) {
       if (selectedNumbers.includes(number)) {
         selectedNumbers = selectedNumbers.filter(n => n !== number);
-        element.style.backgroundColor = '#efe5d8';
+        el.style.backgroundColor = '#efe5d8';
       } else {
         selectedNumbers.push(number);
-        element.style.backgroundColor = '#d6cbb3';
+        el.style.backgroundColor = '#d6cbb3';
       }
-
-      localStorage.setItem('selecionadosTemporarios', JSON.stringify(selectedNumbers));
     }
 
-    function reserveNumbers() {
-      const name = document.getElementById('name').value.trim();
-      const phone = document.getElementById('phone').value.trim();
+    async function reserveNumbers() {
+      const nome = document.getElementById('name').value.trim();
+      const telefone = document.getElementById('phone').value.trim();
 
-      if (!name || !phone || selectedNumbers.length === 0) {
-        alert('Preencha os dados e selecione pelo menos um número.');
+      if (!nome || !telefone || selectedNumbers.length === 0) {
+        alert("Preencha todos os dados e selecione pelo menos um número.");
         return;
       }
 
-      const reservas = getReservas();
       const reservados = new Set(reservas.flatMap(r => r.numeros));
       const conflitos = selectedNumbers.filter(n => reservados.has(n));
-
       if (conflitos.length > 0) {
-        alert(`Os seguintes números já foram reservados: ${conflitos.join(', ')}`);
+        alert(`Números já reservados: ${conflitos.join(", ")}`);
         return;
       }
 
-      const dataHora = new Date().toLocaleString('pt-BR');
-      reservas.push({ nome: name, telefone: phone, numeros: [...selectedNumbers], data: dataHora });
-      localStorage.setItem('reservas', JSON.stringify(reservas));
-      localStorage.removeItem('selecionadosTemporarios');
+      const data = {
+        nome: nome,
+        telefone: telefone,
+        numeros: selectedNumbers
+      };
 
-      const total = selectedNumbers.length * 25;
-      alert(`Reserva confirmada!\nNúmeros: ${selectedNumbers.join(', ')}\nNome: ${name}\nTelefone: ${phone}\nTotal: R$${total},00`);
+      try {
+        const res = await fetch(apiURL, {
+          method: 'POST',
+          body: JSON.stringify(data)
+        });
 
-      numbersContainer.innerHTML = '';
-      selectedNumbers = [];
-      currentMax = 0;
-      renderNumbers(1, 104);
+        if (res.ok) {
+          alert(`Reserva feita com sucesso!\nNúmeros: ${selectedNumbers.join(", ")}`);
+          selectedNumbers = [];
+          numbersContainer.innerHTML = "";
+          currentMax = 0;
+          fetchReservas();
+        } else {
+          throw new Error("Erro ao salvar.");
+        }
+      } catch (err) {
+        alert("Erro ao salvar reserva. Tente novamente.");
+      }
     }
 
-    function copiarCodigoPix() {
-      const codigoPix = "00020126420014br.gov.bcb.pix0120segatto800@gmail.com5204000053039865802BR5923Fernando Segatto Morais6009Sao Paulo62290525REC6807BD9E20ADE456786499630415A1";
-      
-      navigator.clipboard.writeText(codigoPix).then(() => {
-        const mensagem = document.getElementById('copiado');
-        mensagem.style.display = 'block';
-        setTimeout(() => {
-          mensagem.style.display = 'none';
-        }, 3000);
-      }).catch(err => {
-        alert('Erro ao copiar o código PIX: ' + err);
-      });
-    }
-
-    renderNumbers(1, 104);
+    fetchReservas();
   </script>
 </body>
 </html>
