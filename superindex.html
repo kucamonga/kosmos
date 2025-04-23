@@ -181,7 +181,7 @@
           numberDiv.className = 'number';
           numberDiv.textContent = i.toString().padStart(3, '0');
 
-          const reservado = reservas.find(r => r.numeros.includes(i));
+          const reservado = reservas.find(r => r.numeros.includes(i.toString()));
           if (reservado) {
             numberDiv.classList.add('reserved');
             numberDiv.title = `Reservado por: ${reservado.nome}`;
@@ -224,6 +224,9 @@
 
       const dataHora = new Date().toLocaleString('pt-BR');
 
+      // Convertendo os números selecionados em uma string separada por vírgula
+      const numerosReservados = selectedNumbers.join(',');
+
       fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -232,7 +235,7 @@
         body: JSON.stringify({
           nome: name,
           telefone: phone,
-          numeros: selectedNumbers,
+          numeros: numerosReservados,  // Envia os números como uma string separada por vírgula
           data: dataHora,
         })
       })
@@ -263,6 +266,7 @@
       });
     }
 
+    // Carrega números inicialmente
     renderNumbers(1, 104);
   </script>
 
