@@ -192,56 +192,107 @@
   // URL do seu Apps Script publicado
   const scriptURL = 'https://script.google.com/macros/s/AKfycbzAnYaxq2z2yAt9sGtuPj4vhp3_NDmD2eUCQUnsuafJvM9Kr6q0ZXjPyq6OGUfprdH01A/exec';
 
-  async function fetchReservas() {
-    try {
-      const response = await fetch(scriptURL);
-      reservas = await response.json();
-      renderNumbers(1, 104);
-    } catch (error) {
-      alert('Erro ao buscar números reservados da planilha.');
-      console.error(error);
+    function getReservas() {
+      return fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => data)
+        .catch(() => {
+          alert("Erro ao carregar reservas. Verifique sua conexão.");
+          return [];
+        });
     }
-  }
 
-  function renderNumbers(start, end) {
-    for (let i = start; i <= end; i++) {
-      const numberDiv = document.createElement('div');
-      numberDiv.className = 'number';
-      numberDiv.textContent = i.toString().padStart(3, '0');
+    function renderNumbers(start, end) {
+      getReservas().then(data => {
+        const reservas = data || [];
+        for (let i = start; i <= end; i++) {
+          const numberDiv = document.createElement('div');
+          numberDiv.className = 'number';
+          numberDiv.textContent = i.toString().padStart(3, '0');
 
-      const reservado = reservas.find(r => r.numeros.includes(i));
-      if (reservado) {
-        numberDiv.classList.add('reserved');
-        numberDiv.title = `Reservado por: ${reservado.nome}`;
+          const reservado = reservas.find(r => r.numeros.includes(i));
+          if (reservado) {
+            numberDiv.classList.add('reserved');
+            numberDiv.title = `Reservado por: ${reservado.nome}`;
+          } else {
+            numberDiv.onclick = () => toggleNumber(i, numberDiv);
+          }
+
+          numbersContainer.appendChild(numberDiv);
+        }
+
+        currentMax = end;
+        if (currentMax >= 300) {
+          loadMoreBtn.style.display = 'none';
+        }
+      });
+    }
+
+    function loadMoreNumbers() {
+      renderNumbers(currentMax + 1, Math.min(currentMax + 52, 300));
+    }
+
+    function toggleNumber(number, element) {
+      if (selectedNumbers.includes(number)) {
+        selectedNumbers = selectedNumbers.filter(n => n !== number);
+        element.classList.remove('selected');
       } else {
-        numberDiv.onclick = () => toggleNumber(i, numberDiv);
+        selectedNumbers.push(number);
+        element.classList.add('selected');
+      }
+    }
+
+    function reserveNumbers() {
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+
+      if (!name || !phone || selectedNumbers.length === 0) {
+        alert('Preencha os dados e selecione pelo menos um número.');
+        return;
       }
 
-      numbersContainer.appendChild(numberDiv);
+      const dataHora = new Date().toLocaleString('pt-BR');
+
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nome: name,
+          telefone: phone,
+          numeros: selectedNumbers,
+          data: dataHora,
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result === 'success') {
+          const total = selectedNumbers.length * 25;
+          alert(`Reserva confirmada!\nNúmeros: ${selectedNumbers.join(', ')}\nNome: ${name}\nTelefone: ${phone}\nTotal: R$${total},00`);
+          document.getElementById('name').value = '';
+          document.getElementById('phone').value = '';
+          selectedNumbers = [];
+          numbersContainer.innerHTML = '';
+          currentMax = 0;
+          renderNumbers(1, 104);
+        } else {
+          alert('Erro ao salvar a reserva: ' + (data.message || 'Erro desconhecido'));
+        }
+      })
+      .catch(() => {
+        alert('Erro ao salvar a reserva. Tente novamente.');
+      });
     }
 
-    currentMax = end;
-    if (currentMax >= 300) {
-      loadMoreBtn.style.display = 'none';
+    function copiarCodigoPix() {
+      const codigoPix = "00020126420014br.gov.bcb.pix0120segatto800@gmail.com5204000053039865802BR5923Fernando Segatto Morais6009Sao Paulo62290525REC6807BD9E20ADE456786499630415A1";
+      navigator.clipboard.writeText(codigoPix).then(() => {
+        document.getElementById('copiado').style.display = 'block';
+      });
     }
-  }
 
-  function loadMoreNumbers() {
-    renderNumbers(currentMax + 1, Math.min(currentMax + 52, 300));
-  }
-
-  function toggleNumber(number, element) {
-    if (selectedNumbers.includes(number)) {
-      selectedNumbers = selectedNumbers.filter(n => n !== number);
-      element.style.backgroundColor = '#efe5d8';
-    } else {
-      selectedNumbers.push(number);
-      element.style.backgroundColor = '#d6cbb3';
-    }
-  }
-
-  // Chamar a API da planilha ao carregar a página
-  fetchReservas();
+    renderNumbers(1, 104);
 </script>
 </body>
 </html>
