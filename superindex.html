@@ -248,7 +248,7 @@
           currentMax = 0;
           renderNumbers(1, 104);
         } else {
-          alert('Erro ao salvar a reserva. Tente novamente.');
+          alert('Erro ao salvar a reserva: ' + (data.message || 'Erro desconhecido'));
         }
       })
       .catch(() => {
