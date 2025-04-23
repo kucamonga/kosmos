@@ -5,7 +5,109 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rifa do Chá de Bebê do Samir</title>
   <style>
-    /* Estilos omitidos para simplicidade */
+      body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f1ee;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    color: #333;
+  }
+
+  .header {
+    padding: 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .header img {
+    max-width: 120px;
+    margin: 10px auto;
+    display: block;
+    border-radius: 10px;
+  }
+
+  .arabesque {
+    width: 100%;
+    height: 5px;
+    background: repeating-linear-gradient(45deg, #d1cfc3, #d1cfc3 10px, #f4f1ee 10px, #f4f1ee 20px);
+    margin: 20px 0;
+  }
+
+  .numbers-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 10px;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0 10px;
+  }
+
+  .number {
+    background-color: #efe5d8;
+    border: 2px solid #d6cbb3;
+    padding: 15px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #4d644d;
+    transition: background-color 0.3s, transform 0.2s;
+    user-select: none;
+  }
+
+  .number:hover {
+    background-color: #e0d3bb;
+    transform: scale(1.05);
+  }
+
+  .number.reserved {
+    background-color: #c9c9c9;
+    color: #888;
+    cursor: not-allowed;
+  }
+
+  .form-container {
+    margin-top: 30px;
+  }
+
+  .form-container input {
+    padding: 10px;
+    margin: 5px;
+    width: 200px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+
+  .form-container button {
+    padding: 10px 20px;
+    background-color: #8a9a5b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .form-container button:hover {
+    background-color: #6e7c47;
+  }
+
+  .load-more {
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #d6cbb3;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  footer {
+    margin-top: 50px;
+    padding: 20px;
+    background-color: #f9f6f2;
+    font-size: 14px;
+    color: #555;
+  }
   </style>
 </head>
 <body>
