@@ -252,7 +252,8 @@
         }
       })
       .catch(() => {
-        alert('Erro ao salvar a reserva. Tente novamente.');
+       // alert('Erro ao salvar a reserva. Tente novamente.');
+        alert('Erro ao salvar a reserva: ' + (data.message || 'Erro desconhecido'));
       });
     }
 
