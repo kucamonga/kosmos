@@ -1,200 +1,270 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rifa do Chá de Bebê do Samir</title>
   <style>
     body {
-      font-family: 'Georgia', serif;
-      background-color: #eaf1e6;
-      color: #4d644d;
+      font-family: Arial, sans-serif;
+      background-color: #f4f1ee;
       margin: 0;
       padding: 0;
       text-align: center;
+      color: #333;
     }
+
+    .header {
+      padding: 20px;
+      background-color: #fff;
+      border-bottom: 1px solid #ccc;
+    }
+
     .header img {
-      max-width: 320px;
-      margin-bottom: 10px;
+      max-width: 120px;
+      margin: 10px auto;
+      display: block;
+      border-radius: 10px;
     }
+
+    .arabesque {
+      width: 100%;
+      height: 5px;
+      background: repeating-linear-gradient(45deg, #d1cfc3, #d1cfc3 10px, #f4f1ee 10px, #f4f1ee 20px);
+      margin: 20px 0;
+    }
+
     .numbers-container {
       display: grid;
-      grid-template-columns: repeat(13, 1fr);
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
       gap: 10px;
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 20px 10px;
-      background-color: #f5f1e5;
-      border: 1px solid #d1cfc3;
-      border-radius: 8px;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 0 10px;
     }
+
     .number {
-      display: flex;
-      align-items: center;
-      justify-content: center;
       background-color: #efe5d8;
-      color: #4c6a4c;
-      font-size: 14px;
-      font-weight: bold;
-      height: 40px;
+      border: 2px solid #d6cbb3;
+      padding: 15px 0;
       border-radius: 8px;
-      border: 1px solid #d1c2aa;
       cursor: pointer;
+      font-weight: bold;
+      color: #4d644d;
+      transition: background-color 0.3s, transform 0.2s;
+      user-select: none;
     }
+
     .number:hover {
-      background-color: #d6cbb3;
+      background-color: #e0d3bb;
+      transform: scale(1.05);
     }
+
     .number.reserved {
-      background-color: #d9d9d9;
-      color: #8c8c8c;
+      background-color: #c9c9c9;
+      color: #888;
       cursor: not-allowed;
     }
+
+    .number.selected {
+      background-color: #d6cbb3;
+    }
+
     .form-container {
       margin-top: 30px;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
     }
+
     .form-container input {
       padding: 10px;
+      margin: 5px;
+      width: 200px;
       border-radius: 5px;
-      border: 1.8px solid #cbbda3;
-      background-color: #fefcf8;
-      font-size: 14px;
-      width: 180px;
+      border: 1px solid #ccc;
     }
+
     .form-container button {
-      background-color: #6b8a6b;
+      padding: 10px 20px;
+      background-color: #8a9a5b;
       color: white;
-      font-size: 16px;
-      padding: 8px 20px;
       border: none;
-      cursor: pointer;
       border-radius: 5px;
-    }
-    .form-container button:hover {
-      background-color: #567256;
-    }
-    .load-more {
-      margin-top: 15px;
-      background: none;
-      border: none;
-      color: #4c6a4c;
       cursor: pointer;
-      text-decoration: underline;
+    }
+
+    .form-container button:hover {
+      background-color: #6e7c47;
+    }
+
+    .load-more {
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: #d6cbb3;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    footer {
+      margin-top: 50px;
+      padding: 20px;
+      background-color: #f9f6f2;
+      font-size: 14px;
+      color: #555;
     }
   </style>
 </head>
 <body>
+
   <div class="header">
-    <img src="https://kosmoverso.netlify.app/Image.jpeg" alt="Decoração">
+    <img src="https://kosmoverso.netlify.app/Image.jpeg" alt="Decoração da Prateleira">
     <h1>Rifa do Chá de Bebê do Samir</h1>
-    <p>Papai: Edgar | Mamãe: Eliene</p>
-    <p>Data do Sorteio: 14/06/2025 | Prêmio: Kit Cacau Show</p>
+    <p class="parents-info">Papai: Edgar &nbsp;&nbsp;|&nbsp;&nbsp; Mamãe: Eliene</p>
+    <p class="sorteio-info">Data do Sorteio: 14/06/2025 &nbsp;&nbsp;|&nbsp;&nbsp; Premiação: 1 Kit Cacau Show</p>
+    <div class="arabesque"></div>
   </div>
 
-  <h2>Escolha seu(s) número(s) de 1 a 300 - R$ 25,00 cada</h2>
+  <h2 style="font-size: 18px; color: #4d644d; margin-bottom: 10px;">
+    Escolha seu(s) número(s) da sorte de 1 a 300 - Cada número no valor de R$ 25,00.
+  </h2>
   <div class="numbers-container" id="numbers"></div>
-  <button class="load-more" onclick="loadMoreNumbers()">Mostrar mais números</button>
+  <button class="load-more" id="loadMoreBtn" onclick="loadMoreNumbers()">Mostrar mais números</button>
 
   <div class="form-container">
     <input type="text" id="name" placeholder="Nome">
     <input type="tel" id="phone" placeholder="Telefone">
     <button onclick="reserveNumbers()">Reservar</button>
   </div>
+  
+  <div style="margin: 40px auto; text-align: center;">
+    <h3 style="color: #4d644d;">Faça o PIX para confirmar sua reserva</h3>
+    <p style="font-size: 16px; color: #567256;">
+      Após realizar o pagamento, envie o comprovante para o WhatsApp:
+      <strong><a href="https://wa.me/5527998597050" target="_blank" style="color: #4d644d; text-decoration: underline;">+55 27 99859-7050</a></strong><br><br>
+      <strong>Click no QRCode Copiar a chave PIX</strong>
+    </p>
+    <img src="https://kosmoverso.netlify.app/QRCODE.jpg" 
+         alt="QR Code para PIX" 
+         onclick="copiarCodigoPix()" 
+         style="max-width: 150px; width: 100%; margin-top: 20px; border: 2px solid #d1cfc3; border-radius: 8px; cursor: pointer;"
+         title="Clique para copiar o código PIX">
+    <p id="copiado" style="color: green; font-size: 14px; display: none; margin-top: 5px;">Código PIX copiado!</p>
+  </div>
+
+  <footer>
+    <div class="arabesque"></div>
+    <p>Nós três ficamos muito felizes pelo seu apoio e carinho. Gràtidão!!!</p>
+  </footer>
 
   <script>
-    const apiURL = "https://script.google.com/macros/s/AKfycbxr_AjNCe7_HQp44SgxeJ5e8eGb0-w7r2qxhu2ZlhX0dBqxdTyBH4eudcaZp-O0Habt/exec";
     const numbersContainer = document.getElementById('numbers');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
     let selectedNumbers = [];
     let currentMax = 0;
-    let reservas = [];
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbzP8_LCmI5YYvK5ITe1gfXg-r3nRCUHfmPertivCa0DI7Dh4rfdPyTv9VgwJdqFoifM/exec';
 
-    async function fetchReservas() {
-      try {
-        const res = await fetch(apiURL);
-        reservas = await res.json();
-        renderNumbers(currentMax + 1, Math.min(currentMax + 52, 300));
-      } catch (err) {
-        alert("Erro ao carregar reservas. Verifique sua conexão.");
-      }
+    function getReservas() {
+      return fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => data)
+        .catch(() => {
+          alert("Erro ao carregar reservas. Verifique sua conexão.");
+          return [];
+        });
     }
 
     function renderNumbers(start, end) {
-      for (let i = start; i <= end; i++) {
-        const numberDiv = document.createElement("div");
-        numberDiv.className = "number";
-        numberDiv.textContent = i.toString().padStart(3, '0');
+      getReservas().then(data => {
+        const reservas = data || [];
+        for (let i = start; i <= end; i++) {
+          const numberDiv = document.createElement('div');
+          numberDiv.className = 'number';
+          numberDiv.textContent = i.toString().padStart(3, '0');
 
-        const isReserved = reservas.some(r => r.numeros.includes(i));
-        if (isReserved) {
-          numberDiv.classList.add("reserved");
-        } else {
-          numberDiv.onclick = () => toggleNumber(i, numberDiv);
+          const reservado = reservas.find(r => r.numeros.includes(i));
+          if (reservado) {
+            numberDiv.classList.add('reserved');
+            numberDiv.title = `Reservado por: ${reservado.nome}`;
+          } else {
+            numberDiv.onclick = () => toggleNumber(i, numberDiv);
+          }
+
+          numbersContainer.appendChild(numberDiv);
         }
 
-        numbersContainer.appendChild(numberDiv);
-      }
-      currentMax = end;
+        currentMax = end;
+        if (currentMax >= 300) {
+          loadMoreBtn.style.display = 'none';
+        }
+      });
     }
 
     function loadMoreNumbers() {
       renderNumbers(currentMax + 1, Math.min(currentMax + 52, 300));
     }
 
-    function toggleNumber(number, el) {
+    function toggleNumber(number, element) {
       if (selectedNumbers.includes(number)) {
         selectedNumbers = selectedNumbers.filter(n => n !== number);
-        el.style.backgroundColor = '#efe5d8';
+        element.classList.remove('selected');
       } else {
         selectedNumbers.push(number);
-        el.style.backgroundColor = '#d6cbb3';
+        element.classList.add('selected');
       }
     }
 
-    async function reserveNumbers() {
-      const nome = document.getElementById('name').value.trim();
-      const telefone = document.getElementById('phone').value.trim();
+    function reserveNumbers() {
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
 
-      if (!nome || !telefone || selectedNumbers.length === 0) {
-        alert("Preencha todos os dados e selecione pelo menos um número.");
+      if (!name || !phone || selectedNumbers.length === 0) {
+        alert('Preencha os dados e selecione pelo menos um número.');
         return;
       }
 
-      const reservados = new Set(reservas.flatMap(r => r.numeros));
-      const conflitos = selectedNumbers.filter(n => reservados.has(n));
-      if (conflitos.length > 0) {
-        alert(`Números já reservados: ${conflitos.join(", ")}`);
-        return;
-      }
+      const dataHora = new Date().toLocaleString('pt-BR');
 
-      const data = {
-        nome: nome,
-        telefone: telefone,
-        numeros: selectedNumbers
-      };
-
-      try {
-        const res = await fetch(apiURL, {
-          method: 'POST',
-          body: JSON.stringify(data)
-        });
-
-        if (res.ok) {
-          alert(`Reserva feita com sucesso!\nNúmeros: ${selectedNumbers.join(", ")}`);
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nome: name,
+          telefone: phone,
+          numeros: selectedNumbers,
+          data: dataHora,
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result === 'success') {
+          const total = selectedNumbers.length * 25;
+          alert(`Reserva confirmada!\nNúmeros: ${selectedNumbers.join(', ')}\nNome: ${name}\nTelefone: ${phone}\nTotal: R$${total},00`);
+          document.getElementById('name').value = '';
+          document.getElementById('phone').value = '';
           selectedNumbers = [];
-          numbersContainer.innerHTML = "";
+          numbersContainer.innerHTML = '';
           currentMax = 0;
-          fetchReservas();
+          renderNumbers(1, 104);
         } else {
-          throw new Error("Erro ao salvar.");
+          alert('Erro ao salvar a reserva: ' + (data.message || 'Erro desconhecido'));
         }
-      } catch (err) {
-        alert("Erro ao salvar reserva. Tente novamente.");
-      }
+      })
+      .catch(() => {
+        alert('Erro ao salvar a reserva. Tente novamente.');
+      });
     }
 
-    fetchReservas();
+    function copiarCodigoPix() {
+      const codigoPix = "00020126420014br.gov.bcb.pix0120segatto800@gmail.com5204000053039865802BR5923Fernando Segatto Morais6009Sao Paulo62290525REC6807BD9E20ADE456786499630415A1";
+      navigator.clipboard.writeText(codigoPix).then(() => {
+        document.getElementById('copiado').style.display = 'block';
+      });
+    }
+
+    renderNumbers(1, 104);
   </script>
+
 </body>
 </html>
