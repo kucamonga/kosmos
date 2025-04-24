@@ -142,14 +142,10 @@ function renderNumbers(start, end) {
     numberDiv.className = 'number';
     numberDiv.textContent = i.toString().padStart(3, '0');
 
-    // Verificar se o número está reservado
-    const reservado = reservasCache.find(r => r.numeros && r.numeros.includes(i));
-    if (reservado) {
-      // Se o número estiver reservado, desabilitar e adicionar classe "reserved"
+    if (reservasCache.includes(i)) {
       numberDiv.classList.add('reserved');
-      numberDiv.title = `Reservado por: ${reservado.nome}`;
+      numberDiv.title = 'Reservado';
     } else {
-      // Se o número não estiver reservado, permitir clicar para seleção
       numberDiv.onclick = () => toggleNumber(i, numberDiv);
     }
 
