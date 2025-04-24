@@ -6,111 +6,137 @@
   <title>Rifa do Chá de Bebê do Samir</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f1ee;
+      font-family: 'Georgia', serif;
+      background-color: #eaf1e6;
+      color: #4d644d;
       margin: 0;
       padding: 0;
       text-align: center;
-      color: #333;
     }
 
     .header {
-      padding: 20px;
-      background-color: #fff;
-      border-bottom: 1px solid #ccc;
+      padding-top: 20px;
     }
 
     .header img {
-      max-width: 120px;
-      margin: 10px auto;
-      display: block;
-      border-radius: 10px;
+      max-width: 320px;
+      width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .parents-info {
+      font-size: 18px;
+      font-weight: bold;
+      color: #567256;
+      margin-bottom: 10px;
+    }
+
+    .sorteio-info {
+      font-size: 16px;
+      color: #6d856d;
+      margin-bottom: 30px;
     }
 
     .arabesque {
-      width: 100%;
-      height: 5px;
-      background: repeating-linear-gradient(45deg, #d1cfc3, #d1cfc3 10px, #f4f1ee 10px, #f4f1ee 20px);
-      margin: 20px 0;
+      background: url('https://kosmoverso.netlify.app/premio.jpeg') no-repeat center;
+      background-size: contain;
+      height: 250px;
+      margin: 100px 0;
     }
 
     .numbers-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+      grid-template-columns: repeat(13, 1fr);
       gap: 10px;
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 0 10px;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 20px 10px;
+      background-color: #f5f1e5;
+      border: 1px solid #d1cfc3;
+      border-radius: 8px;
     }
 
     .number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background-color: #efe5d8;
-      border: 2px solid #d6cbb3;
-      padding: 15px 0;
-      border-radius: 8px;
-      cursor: pointer;
+      color: #4c6a4c;
+      font-size: 14px;
       font-weight: bold;
-      color: #4d644d;
-      transition: background-color 0.3s, transform 0.2s;
-      user-select: none;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid #d1c2aa;
+      cursor: pointer;
+      transition: background-color 0.3s ease-in-out;
     }
 
     .number:hover {
-      background-color: #e0d3bb;
-      transform: scale(1.05);
+      background-color: #d6cbb3;
     }
 
     .number.reserved {
-      background-color: #c9c9c9;
-      color: #888;
+      background-color: #d9d9d9;
+      color: #8c8c8c;
       cursor: not-allowed;
-    }
-
-    .number.selected {
-      background-color: #d6cbb3;
     }
 
     .form-container {
       margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
     }
 
     .form-container input {
       padding: 10px;
-      margin: 5px;
-      width: 200px;
       border-radius: 5px;
-      border: 1px solid #ccc;
+      border: 1.8px solid #cbbda3;
+      background-color: #fefcf8;
+      font-size: 14px;
+      width: 180px;
     }
 
     .form-container button {
-      padding: 10px 20px;
-      background-color: #8a9a5b;
+      background-color: #6b8a6b;
       color: white;
+      font-size: 16px;
+      padding: 8px 20px;
       border: none;
-      border-radius: 5px;
       cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
     }
 
     .form-container button:hover {
-      background-color: #6e7c47;
+      background-color: #567256;
     }
 
     .load-more {
-      margin: 20px auto;
-      padding: 10px 20px;
-      background-color: #d6cbb3;
+      margin-top: 15px;
+      font-size: 14px;
+      background-color: transparent;
       border: none;
-      border-radius: 5px;
+      color: #4c6a4c;
       cursor: pointer;
-      font-weight: bold;
+      text-decoration: underline;
     }
 
     footer {
-      margin-top: 50px;
+      margin-top: 20px;
       padding: 20px;
-      background-color: #f9f6f2;
-      font-size: 14px;
-      color: #555;
+      background: #eaf1e6;
+      color: #4d644d;
+    }
+
+    footer .arabesque {
+      margin: 20px auto;
     }
   </style>
 </head>
