@@ -127,6 +127,7 @@
     try {
       const response = await fetch(scriptURL);
       const data = await response.json();
+      console.log(data); //log
       reservasCache = data;
       return data;
     } catch (e) {
@@ -135,30 +136,31 @@
     }
   }
 
-  function renderNumbers(start, end) {
-    for (let i = start; i <= end; i++) {
-      const numberDiv = document.createElement('div');
-      numberDiv.className = 'number';
-      numberDiv.textContent = i.toString().padStart(3, '0');
+function renderNumbers(start, end) {
+  for (let i = start; i <= end; i++) {
+    const numberDiv = document.createElement('div');
+    numberDiv.className = 'number';
+    numberDiv.textContent = i.toString().padStart(3, '0');
 
-      const reservado = reservasCache.find(r => r.numeros.includes(i));
-      if (reservado) {
-        // Se o número estiver reservado, desabilitar e adicionar classe "reserved"
-        numberDiv.classList.add('reserved');
-        numberDiv.title = `Reservado por: ${reservado.nome}`;
-      } else {
-        // Se o número não estiver reservado, permitir clicar para seleção
-        numberDiv.onclick = () => toggleNumber(i, numberDiv);
-      }
-
-      numbersContainer.appendChild(numberDiv);
+    // Verificar se o número está reservado
+    const reservado = reservasCache.find(r => r.numeros && r.numeros.includes(i));
+    if (reservado) {
+      // Se o número estiver reservado, desabilitar e adicionar classe "reserved"
+      numberDiv.classList.add('reserved');
+      numberDiv.title = `Reservado por: ${reservado.nome}`;
+    } else {
+      // Se o número não estiver reservado, permitir clicar para seleção
+      numberDiv.onclick = () => toggleNumber(i, numberDiv);
     }
 
-    currentMax = end;
-    if (currentMax >= 300) {
-      loadMoreBtn.style.display = 'none';
-    }
+    numbersContainer.appendChild(numberDiv);
   }
+
+  currentMax = end;
+  if (currentMax >= 300) {
+    loadMoreBtn.style.display = 'none';
+  }
+}
 
   function loadMoreNumbers() {
     renderNumbers(currentMax + 1, Math.min(currentMax + 52, 300));
