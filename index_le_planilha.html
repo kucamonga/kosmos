@@ -239,48 +239,32 @@
       }
     }
 
-    function reserveNumbers() {
-      const name = document.getElementById('name').value.trim();
-      const phone = document.getElementById('phone').value.trim();
+  function reserveNumbers() {
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
 
-      if (!name || !phone || selectedNumbers.length === 0) {
-        alert('Preencha os dados e selecione pelo menos um número.');
-        return;
-      }
+  if (!name || !phone || selectedNumbers.length === 0) {
+    alert('Preencha os dados e selecione pelo menos um número.');
+    return;
+  }
 
-      const dataHora = new Date().toLocaleString('pt-BR');
+  const numerosReservados = selectedNumbers.join(', ');
+  const mensagem = `Olá, gostaria de reservar os números: ${numerosReservados}. \nNome: ${name} \nTelefone: ${phone}`;
 
-      fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nome: name,
-          telefone: phone,
-          numeros: selectedNumbers,
-          data: dataHora,
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.result === 'success') {
-          const total = selectedNumbers.length * 25;
-          alert(`Reserva confirmada!\nNúmeros: ${selectedNumbers.join(', ')}\nNome: ${name}\nTelefone: ${phone}\nTotal: R$${total},00`);
-          document.getElementById('name').value = '';
-          document.getElementById('phone').value = '';
-          selectedNumbers = [];
-          numbersContainer.innerHTML = '';
-          currentMax = 0;
-          renderNumbers(1, 104);
-        } else {
-          alert('Erro ao salvar a reserva: ' + (data.message || 'Erro desconhecido'));
-        }
-      })
-      .catch(() => {
-        alert('Erro ao salvar a reserva. Tente novamente.');
-      });
-    }
+  // Geração do link para WhatsApp
+  const whatsappLink = `https://wa.me/5527998597050?text=${encodeURIComponent(mensagem)}`;
+
+  // Redireciona o usuário para o WhatsApp com a mensagem preenchida
+  window.open(whatsappLink, '_blank');
+  
+  // Opcional: Limpa os campos e números após o envio para o WhatsApp
+  document.getElementById('name').value = '';
+  document.getElementById('phone').value = '';
+  selectedNumbers = [];
+  numbersContainer.innerHTML = '';  // Limpa a lista de números
+  currentMax = 0;
+  renderNumbers(1, 104);  // Recarrega os números da rifa
+}
 
     function copiarCodigoPix() {
       const codigoPix = "00020126420014br.gov.bcb.pix0120segatto800@gmail.com5204000053039865802BR5923Fernando Segatto Morais6009Sao Paulo62290525REC6807BD9E20ADE456786499630415A1";
