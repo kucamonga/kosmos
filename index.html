@@ -1,102 +1,140 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agradecimento - Chá de Bebê do Samir</title>
-  <style>
-    body {
-      font-family: 'Georgia', serif;
-      background-color: #eaf1e6;
-      color: #4d644d;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-
-    .header {
-      padding-top: 20px;
-    }
-
-    .header img {
-      max-width: 320px;
-      width: 100%;
-      height: auto;
-      margin-bottom: 10px;
-    }
-
-    h1 {
-      font-size: 28px;
-      margin-bottom: 10px;
-    }
-
-    .subtitle {
-      font-size: 18px;
-      font-weight: bold;
-      color: #567256;
-      margin-bottom: 30px;
-    }
-
-    .arabesque {
-      
-      background-size: contain;
-      height: 250px;
-      margin: 80px 0 40px;
-    }
-
-    .video-container {
-      margin: 30px auto;
-      max-width: 800px;
-      width: 90%;
-      background-color: #f5f1e5;
-      padding: 20px;
-      border-radius: 8px;
-      border: 1px solid #d1cfc3;
-    }
-
-    video {
-      width: 100%;
-      border-radius: 8px;
-      border: 2px solid #cbbda3;
-      margin-bottom: 20px;
-    }
-
-    footer {
-      margin-top: 40px;
-      padding: 20px;
-      background: #eaf1e6;
-      color: #4d644d;
-    }
-
-    footer .arabesque {
-      margin: 20px auto;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Marítimo ES</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #0056b3; }
+        .controles { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+        select, input[type="date"], button { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; flex: 1; min-width: 150px; }
+        button { background-color: #0056b3; color: white; border: none; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+        button:hover { background-color: #004494; }
+        .grid-resultados { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .card { background: #e9f2fa; padding: 20px; border-radius: 8px; text-align: center; border-left: 5px solid #0056b3; }
+        .card h3 { margin-top: 0; color: #0056b3; font-size: 1.1em; }
+        .card p { font-size: 1.2em; font-weight: bold; margin: 10px 0 0; }
+        #loading { text-align: center; display: none; font-style: italic; color: #666; }
+    </style>
 </head>
 <body>
-  
-<div class="header">
-  <h1>Chá de Bebê do Samir</h1>
-  <p class="subtitle">Nossa eterna gratidão a todos que participaram da rifa!</p>
-</div>
-    <div class="video-container">
-    <h2 style="color: #4d644d;">Vídeo de Agradecimento</h2>
-    <video controls>
-      <source src="Agradecimentos.mp4" type="video/mp4">
-      Seu navegador não suporta a reprodução de vídeo.
-    </video>
 
-    <h2 style="color: #4d644d;">Vídeo do Sorteio</h2>
-    <video controls>
-      <source src="Sorteio.mp4" type="video/mp4">
-      Seu navegador não suporta a reprodução de vídeo.
-    </video>
-  </div>
-  
-  <footer>
-    <div class="arabesque"></div>
-    <p>Samir, Eliene e Edgar agradecem de coração todo o carinho e apoio! 💖</p>
-  </footer>
+<div class="container">
+    <h1>🌊 Condições do Mar - Litoral ES</h1>
+    
+    <div class="controles">
+        <select id="cidade">
+            <option value="-20.3155,-40.3128">Vitória (Curva da Jurema)</option>
+            <option value="-20.3297,-40.2925">Vila Velha (Praia da Costa)</option>
+            <option value="-20.1200,-40.1800" selected>Serra (Jacaraípe)</option>
+            <option value="-19.9634,-40.1132">Aracruz (Praia da Biologia)</option>
+            <option value="-19.9333,-40.1500">Fundão (Praia Grande)</option>
+            <option value="-20.6667,-40.4999">Guarapari (Centro)</option>
+            <option value="-19.6333,-39.8167">Linhares (Regência)</option>
+        </select>
+        <input type="date" id="dataInput">
+        <button onclick="buscarDados()">Buscar Dados</button>
+    </div>
+
+    <div id="loading">Consultando satélites e boias oceanográficas...</div>
+
+    <div class="grid-resultados" id="resultados" style="display: none;">
+        <div class="card">
+            <h3>💨 Vento</h3>
+            <p id="resVento">-- m/s</p>
+        </div>
+        <div class="card">
+            <h3>🏄 Ondas</h3>
+            <p id="resOndas">-- m</p>
+        </div>
+        <div class="card">
+            <h3>🌧️ Chuva</h3>
+            <p id="resChuva">-- mm</p>
+        </div>
+        <div class="card">
+            <h3>🤿 Claridade do Mar</h3>
+            <p id="resClaridade">-- m</p>
+        </div>
+        <div class="card">
+            <h3>🌕 Lua</h3>
+            <p id="resLua">--</p>
+        </div>
+        <div class="card">
+            <h3>🌊 Próxima Maré</h3>
+            <p id="resMare">--</p>
+        </div>
+    </div>
+</div>
+
+<script>
+ async function buscarDados() {
+    const apiKey = '1f42c90e-23a1-11f1-9cfe-0242ac120003-1f42c97c-23a1-11f1-9cfe-0242ac120003';
+    const coords = document.getElementById('cidade').value.split(',');
+    const lat = coords[0];
+    const lng = coords[1];
+    
+    const dataSelecionada = document.getElementById('dataInput').value;
+    if(!dataSelecionada) return alert("Selecione uma data.");
+
+    const dataObj = new Date(dataSelecionada + 'T12:00:00'); 
+    const dataISO = dataObj.toISOString();
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('resultados').style.display = 'none';
+
+    try {
+        // 1. Chamada de Clima (Vento, Ondas, Chuva, Visibilidade)
+        const weatherParams = 'windSpeed,waveHeight,precipitation,visibility';
+        const urlWeather = `https://api.stormglass.io/v2/weather/point?lat=${lat}&lng=${lng}&params=${weatherParams}&start=${dataISO}&end=${dataISO}&source=noaa`;
+
+        // 2. Chamada de Astronomia (Lua)
+        const urlAstronomy = `https://api.stormglass.io/v2/astronomy/point?lat=${lat}&lng=${lng}&start=${dataISO}&end=${dataISO}`;
+
+        // 3. Chamada de Maré
+        const urlTide = `https://api.stormglass.io/v2/tide/extremes/point?lat=${lat}&lng=${lng}&start=${dataISO}&end=${dataISO}`;
+
+        // Executamos as 3 chamadas. Mesmo que uma falhe, tentamos processar as outras.
+        const [resWeather, resAstro, resTide] = await Promise.allSettled([
+            fetch(urlWeather, { headers: { 'Authorization': apiKey } }).then(r => r.json()),
+            fetch(urlAstronomy, { headers: { 'Authorization': apiKey } }).then(r => r.json()),
+            fetch(urlTide, { headers: { 'Authorization': apiKey } }).then(r => r.json())
+        ]);
+
+        // Processando Clima
+        if (resWeather.status === 'fulfilled' && resWeather.value.hours) {
+            const h = resWeather.value.hours[0];
+            document.getElementById('resVento').innerText = `${(h.windSpeed.noaa * 3.6).toFixed(1)} km/h`;
+            document.getElementById('resOndas').innerText = `${h.waveHeight.noaa} m`;
+            document.getElementById('resChuva').innerText = (h.precipitation ? h.precipitation.noaa : 0) + " mm";
+            document.getElementById('resClaridade').innerText = h.visibility ? `${h.visibility.noaa} km` : "N/D";
+        }
+
+        // Processando Lua
+        if (resAstro.status === 'fulfilled' && resAstro.value.data) {
+            const a = resAstro.value.data[0];
+            document.getElementById('resLua').innerText = a.moonPhase ? a.moonPhase.closest.text : "N/D";
+        }
+
+        // Processando Maré
+        if (resTide.status === 'fulfilled' && resTide.value.data) {
+            const m = resTide.value.data[0];
+            if(m) {
+                const tipo = m.type === 'high' ? 'Alta' : 'Baixa';
+                document.getElementById('resMare').innerText = `${tipo}: ${m.height.toFixed(2)}m`;
+            }
+        }
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('resultados').style.display = 'grid';
+
+    } catch (error) {
+        document.getElementById('loading').style.display = 'none';
+        alert("Erro técnico: " + error.message);
+    }
+}
+</script>
 
 </body>
 </html>
