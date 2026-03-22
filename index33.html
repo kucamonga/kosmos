@@ -13,7 +13,7 @@ body { font-family: Arial; background:#f4f7f6; padding:20px; }
 select,input,button { padding:10px; }
 
 .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-.card { background:#e9f2fa; padding:10px; text-align:center; font-weight:bold; border-radius:6px; }
+.card { background:#e9f2fa; padding:10px; text-align:center; font-weight:bold; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
 
 .titulo-mare {
     margin-top:20px;
@@ -24,10 +24,14 @@ select,input,button { padding:10px; }
     border-radius:5px;
 }
 
-table { width:100%; border-collapse:collapse; }
+table { width:100%; border-collapse:collapse; margin-top:10px; border-radius:8px; overflow:hidden; }
 td, th { border:1px solid #ccc; padding:10px; text-align:center; }
+th { background:#f1f1f1; }
 
-canvas { width:100%; height:220px; margin-top:10px; }
+.alta { color:#0056b3; font-weight:bold; }
+.baixa { color:#d9534f; font-weight:bold; }
+
+canvas { width:100%; height:200px; margin-top:10px; }
 </style>
 </head>
 
@@ -39,7 +43,6 @@ canvas { width:100%; height:220px; margin-top:10px; }
 <p><b>Maré Oficial:</b> Porto de Tubarão</p>
 
 <div class="controles">
-
 <select id="cidade">
 <option value="-20.3155,-40.3128">Vitória</option>
 <option value="-20.3297,-40.2925">Vila Velha</option>
@@ -75,8 +78,8 @@ canvas { width:100%; height:220px; margin-top:10px; }
 <div class="card">🌡️ <span id="temp">--</span></div>
 <div class="card">🌧️ <span id="chuva">--</span></div>
 <div class="card">🌕 <span id="lua">--</span></div>
-<div class="card">🌡️ Pressão <span id="pressao">--</span></div>
 <div class="card">🎣 <span id="atividade">--</span></div>
+<div class="card">🌡️ <span id="pressao">--</span></div>
 </div>
 
 <div class="titulo-mare">
@@ -100,7 +103,7 @@ TÁBUA DE MARÉS - PORTO DE TUBARÃO (OFICIAL)
 
 <script>
 
-// ===== DIREÇÃO DO VENTO =====
+// ===== DIREÇÃO =====
 function direcao(g){
 const d=["N","NE","E","SE","S","SO","O","NO"];
 return d[Math.round(g/45)%8];
@@ -121,33 +124,33 @@ if(fase<0.75) return "Minguante";
 return "Nova";
 }
 
-// ===== ATIVIDADE AVANÇADA =====
-function calcularAtividadePeixe(mares, pressao, lua){
+// ===== PRESSÃO =====
+function interpretarPressao(valor){
+if(valor > 1015) return {texto:"🔵 Alta", cor:"#007bff"};
+if(valor >= 1005) return {texto:"🟡 Média", cor:"#f0ad4e"};
+return {texto:"🔴 Baixa", cor:"#d9534f"};
+}
+
+// ===== ATIVIDADE PEIXE =====
+function calcularAtividadePeixe(mares, pressao){
+const alturas = mares.map(m => parseFloat(m.altura));
+
+let variacao = 0;
+for(let i=1;i<alturas.length;i++){
+variacao += Math.abs(alturas[i] - alturas[i-1]);
+}
 
 let score = 0;
-
-// Maré (variação)
-let variacao = 0;
-for(let i=1;i<mares.length;i++){
-variacao += Math.abs(mares[i].altura - mares[i-1].altura);
-}
 
 if(variacao > 2.5) score += 2;
 else if(variacao > 1.5) score += 1;
 
-// Pressão
-if(pressao < 1008) score += 2;
+if(pressao < 1005) score += 2;
 else if(pressao < 1015) score += 1;
 
-// Lua
-if(lua === "Nova" || lua === "Cheia") score += 2;
-else score += 1;
-
-// Resultado
-if(score >= 5) return {nivel:"🔥 Excelente", cor:"green"};
-if(score >= 3) return {nivel:"⚡ Boa", cor:"orange"};
+if(score >= 3) return {nivel:"🔥 Muito Boa", cor:"green"};
+if(score >= 2) return {nivel:"⚡ Boa", cor:"orange"};
 return {nivel:"❌ Fraca", cor:"red"};
-
 }
 
 // ===== BUSCAR =====
@@ -165,19 +168,17 @@ if(!data) return alert("Escolha data");
 
 try{
 
-// ===== CLIMA =====
 const clima = await fetch(
 `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,precipitation,surface_pressure&start_date=${data}&end_date=${data}&timezone=America/Sao_Paulo`
 ).then(r=>r.json());
 
-// ===== ONDAS =====
 const ondasApi = await fetch(
 `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lng}&hourly=wave_height&start_date=${data}&end_date=${data}&timezone=America/Sao_Paulo`
 ).then(r=>r.json());
 
 const horas = clima.hourly.time.map(t=>new Date(t).getHours());
 
-let temperaturas=[], ondas=[], vento=[], direcoes=[], chuva=[], pressao=[];
+let temperaturas=[], ondas=[], vento=[], direcoes=[], chuva=[], pressaoArr=[];
 
 horas.forEach((h,i)=>{
 if(h>=inicio && h<=fim){
@@ -186,7 +187,7 @@ ondas.push(ondasApi.hourly.wave_height[i] || 0);
 vento.push(clima.hourly.wind_speed_10m[i]);
 direcoes.push(clima.hourly.wind_direction_10m[i]);
 chuva.push(clima.hourly.precipitation[i]);
-pressao.push(clima.hourly.surface_pressure[i]);
+pressaoArr.push(clima.hourly.surface_pressure[i]);
 }
 });
 
@@ -194,16 +195,22 @@ const media = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
 
 const vel = media(vento);
 const dir = direcao(media(direcoes));
-const pMedia = media(pressao);
+const pressaoMedia = media(pressaoArr);
 
+// UI clima
 document.getElementById('vento').innerText = `${vel.toFixed(1)} km/h (${dir})`;
 document.getElementById('ondas').innerText = `${media(ondas).toFixed(1)} m`;
 document.getElementById('temp').innerText = `${media(temperaturas).toFixed(1)} °C`;
 document.getElementById('chuva').innerText = `${chuva.reduce((a,b)=>a+b,0).toFixed(1)} mm`;
 document.getElementById('lua').innerText = calcularLua(data);
-document.getElementById('pressao').innerText = `${pMedia.toFixed(0)} hPa`;
 
-// ===== MARÉS =====
+// pressão UI
+const p = interpretarPressao(pressaoMedia);
+const elP = document.getElementById('pressao');
+elP.innerText = `${p.texto} (${pressaoMedia.toFixed(0)} hPa)`;
+elP.style.color = p.cor;
+
+// marés
 const banco = await fetch('mares.json').then(r=>r.json());
 
 let mares = banco["20540"]?.[data] || [
@@ -213,27 +220,26 @@ let mares = banco["20540"]?.[data] || [
 {tipo:"BAIXA",hora:"21:00",altura:0.6}
 ];
 
-// ===== ATIVIDADE =====
-const atividade = calcularAtividadePeixe(mares, pMedia, calcularLua(data));
-const el = document.getElementById('atividade');
-el.innerText = atividade.nivel;
-el.style.color = atividade.cor;
+// atividade peixe
+const atividade = calcularAtividadePeixe(mares, pressaoMedia);
+const elA = document.getElementById('atividade');
+elA.innerText = atividade.nivel;
+elA.style.color = atividade.cor;
 
-// ===== TABELA =====
+// tabela
 const linha = document.getElementById('linhaMares');
 linha.innerHTML = '';
 
-for(let i=0;i<4;i++){
-const m = mares[i];
-linha.innerHTML += m ? `
+mares.forEach(m=>{
+linha.innerHTML += `
 <td>
-<div>${m.tipo==="ALTA"?"🔼 Alta":"🔽 Baixa"}</div>
+<div class="${m.tipo==='ALTA'?'alta':'baixa'}">${m.tipo==="ALTA"?"🔼 Alta":"🔽 Baixa"}</div>
 <div><b>${m.hora}</b></div>
 <div>${parseFloat(m.altura).toFixed(2)} m</div>
-</td>` : "<td>--</td>";
-}
+</td>`;
+});
 
-// ===== GRÁFICO =====
+// gráfico
 desenharGrafico(mares);
 
 }catch(e){
@@ -243,38 +249,40 @@ alert("Erro ao carregar dados");
 
 }
 
-// ===== GRÁFICO =====
+// ===== GRÁFICO SUAVE =====
 function desenharGrafico(mares){
 
 const canvas = document.getElementById('grafico');
 const ctx = canvas.getContext('2d');
 
 canvas.width = canvas.offsetWidth;
-canvas.height = 220;
+canvas.height = 200;
 
 ctx.clearRect(0,0,canvas.width,canvas.height);
 
 const alturas = mares.map(m=>parseFloat(m.altura));
 const max = Math.max(...alturas);
 const min = Math.min(...alturas);
-const range = (max - min) || 1;
 
 const stepX = canvas.width/(mares.length-1);
 
+let pontos = mares.map((m,i)=>({
+x: i*stepX,
+y: canvas.height - ((m.altura-min)/(max-min))*canvas.height
+}));
+
 ctx.beginPath();
+ctx.moveTo(pontos[0].x,pontos[0].y);
 
-mares.forEach((m,i)=>{
-const x = i*stepX;
-const y = canvas.height - ((m.altura-min)/range)*canvas.height;
-
-if(i===0) ctx.moveTo(x,y);
-else ctx.lineTo(x,y);
-});
+for(let i=1;i<pontos.length;i++){
+const xc = (pontos[i].x + pontos[i-1].x)/2;
+const yc = (pontos[i].y + pontos[i-1].y)/2;
+ctx.quadraticCurveTo(pontos[i-1].x,pontos[i-1].y,xc,yc);
+}
 
 ctx.strokeStyle="#0056b3";
-ctx.lineWidth=2;
+ctx.lineWidth=3;
 ctx.stroke();
-
 }
 
 </script>
