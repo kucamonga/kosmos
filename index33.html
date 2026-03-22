@@ -3,35 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal Marítimo ES</title>
+<title>Mar ES</title>
 
 <style>
-body { font-family: Arial; background:#f4f7f6; padding:20px; }
-.container { max-width:900px; margin:auto; background:#fff; padding:20px; border-radius:10px; }
+body {
+    font-family: Arial;
+    background: linear-gradient(to bottom, #dfefff, #ffffff);
+    margin:0;
+    padding:10px;
+}
 
-.controles { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
-select,input,button { padding:10px; }
+.container {
+    max-width:500px;
+    margin:auto;
+    background:#fff;
+    border-radius:15px;
+    padding:15px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
 
-.grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-.card { background:#e9f2fa; padding:10px; text-align:center; font-weight:bold; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
+h2 { text-align:center; margin-bottom:5px; }
 
-.titulo-mare {
-    margin-top:20px;
+.sub { text-align:center; font-size:13px; color:#666; margin-bottom:10px; }
+
+.controles {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-bottom:10px;
+}
+
+select,input,button {
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-size:14px;
+}
+
+button {
+    grid-column:span 2;
+    background:#007bff;
+    color:#fff;
+    border:none;
+}
+
+.grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:10px;
+}
+
+.card {
+    background:#f0f6ff;
+    padding:10px;
+    border-radius:10px;
+    text-align:center;
+    font-size:14px;
+    font-weight:bold;
+}
+
+.titulo {
+    margin-top:15px;
     background:#0056b3;
     color:#fff;
     padding:8px;
+    border-radius:8px;
     text-align:center;
-    border-radius:5px;
 }
 
-table { width:100%; border-collapse:collapse; margin-top:10px; border-radius:8px; overflow:hidden; }
-td, th { border:1px solid #ccc; padding:10px; text-align:center; }
-th { background:#f1f1f1; }
+table {
+    width:100%;
+    margin-top:8px;
+    border-collapse:collapse;
+}
 
-.alta { color:#0056b3; font-weight:bold; }
-.baixa { color:#d9534f; font-weight:bold; }
+td {
+    padding:8px;
+    text-align:center;
+    font-size:13px;
+}
 
-canvas { width:100%; height:200px; margin-top:10px; }
+canvas {
+    width:100%;
+    height:180px;
+    margin-top:10px;
+}
+
+/* Peixes */
+.peixes {
+    margin-top:10px;
+    background:#eaf7ea;
+    padding:10px;
+    border-radius:10px;
+}
+
+.peixes h4 {
+    margin:0 0 5px;
+}
+
 </style>
 </head>
 
@@ -39,33 +109,27 @@ canvas { width:100%; height:200px; margin-top:10px; }
 
 <div class="container">
 
-<h2>🌊 Condições do Mar - ES</h2>
-<p><b>Maré Oficial:</b> Porto de Tubarão</p>
+<h2>🌊 Mar ES</h2>
+<div class="sub">Maré oficial: Tubarão</div>
 
 <div class="controles">
 <select id="cidade">
 <option value="-20.3155,-40.3128">Vitória</option>
-<option value="-20.3297,-40.2925">Vila Velha</option>
-<option value="-20.1200,-40.1800">Serra</option>
-<option value="-19.9634,-40.1132" selected>Aracruz</option>
-<option value="-19.9333,-40.1500">Fundão</option>
+<option value="-20.1200,-40.1800" selected>Serra</option>
 <option value="-20.6667,-40.4999">Guarapari</option>
-<option value="-19.6333,-39.8167">Linhares</option>
 </select>
 
 <input type="date" id="dataInput">
 
 <select id="horaInicio">
-<option value="0">00h</option>
-<option value="6" selected>06h</option>
-<option value="12">12h</option>
+<option value="6">06h</option>
+<option value="12" selected>12h</option>
 <option value="18">18h</option>
 </select>
 
 <select id="horaFim">
-<option value="6">06h</option>
-<option value="12" selected>12h</option>
-<option value="18">18h</option>
+<option value="12">12h</option>
+<option value="18" selected>18h</option>
 <option value="23">23h</option>
 </select>
 
@@ -79,29 +143,35 @@ canvas { width:100%; height:200px; margin-top:10px; }
 <div class="card">🌧️ <span id="chuva">--</span></div>
 <div class="card">🌕 <span id="lua">--</span></div>
 <div class="card">🎣 <span id="atividade">--</span></div>
-<div class="card">🌡️ <span id="pressao">--</span></div>
+<div class="card">📊 <span id="pressao">--</span></div>
 </div>
 
-<div class="titulo-mare">
-TÁBUA DE MARÉS - PORTO DE TUBARÃO (OFICIAL)
-</div>
-
+<div class="titulo">TÁBUA DE MARÉS</div>
 <table>
-<thead>
-<tr>
-<th>1ª</th><th>2ª</th><th>3ª</th><th>4ª</th>
-</tr>
-</thead>
-<tbody>
 <tr id="linhaMares"></tr>
-</tbody>
 </table>
 
 <canvas id="grafico"></canvas>
 
+<div class="peixes">
+<h4>🐟 Espécies indicadas</h4>
+<div id="listaPeixes">--</div>
+</div>
+
 </div>
 
 <script>
+
+// ===== LUA =====
+function calcularLua(dataStr){
+const d=new Date(dataStr);
+const dias=(d-new Date(2000,0,6))/86400000;
+const fase=(dias%29.53)/29.53;
+if(fase<0.25) return "Crescente";
+if(fase<0.5) return "Cheia";
+if(fase<0.75) return "Minguante";
+return "Nova";
+}
 
 // ===== DIREÇÃO =====
 function direcao(g){
@@ -109,179 +179,123 @@ const d=["N","NE","E","SE","S","SO","O","NO"];
 return d[Math.round(g/45)%8];
 }
 
-// ===== LUA =====
-function calcularLua(dataStr){
-const data = new Date(dataStr);
-const ciclo = 29.53;
-const ref = new Date(2000,0,6);
-const dias = (data-ref)/86400000;
-const fase = (dias % ciclo)/ciclo;
-
-if(fase<0.1) return "Nova";
-if(fase<0.25) return "Crescente";
-if(fase<0.5) return "Cheia";
-if(fase<0.75) return "Minguante";
-return "Nova";
-}
-
 // ===== PRESSÃO =====
-function interpretarPressao(valor){
-if(valor > 1015) return {texto:"🔵 Alta", cor:"#007bff"};
-if(valor >= 1005) return {texto:"🟡 Média", cor:"#f0ad4e"};
-return {texto:"🔴 Baixa", cor:"#d9534f"};
+function interpretarPressao(v){
+if(v>1015) return {txt:"🔵 Alta", cor:"blue"};
+if(v>=1005) return {txt:"🟡 Média", cor:"orange"};
+return {txt:"🔴 Baixa", cor:"red"};
 }
 
-// ===== ATIVIDADE PEIXE =====
-function calcularAtividadePeixe(mares, pressao){
-const alturas = mares.map(m => parseFloat(m.altura));
-
-let variacao = 0;
-for(let i=1;i<alturas.length;i++){
-variacao += Math.abs(alturas[i] - alturas[i-1]);
+// ===== ATIVIDADE =====
+function calcularAtividade(mares,pressao){
+let variacao=0;
+for(let i=1;i<mares.length;i++){
+variacao+=Math.abs(mares[i].altura-mares[i-1].altura);
 }
 
-let score = 0;
+let score=0;
+if(variacao>2.5) score+=2;
+else if(variacao>1.5) score+=1;
 
-if(variacao > 2.5) score += 2;
-else if(variacao > 1.5) score += 1;
+if(pressao<1005) score+=2;
+else if(pressao<1015) score+=1;
 
-if(pressao < 1005) score += 2;
-else if(pressao < 1015) score += 1;
+if(score>=3) return "🔥 Muito Boa";
+if(score>=2) return "⚡ Boa";
+return "❌ Fraca";
+}
 
-if(score >= 3) return {nivel:"🔥 Muito Boa", cor:"green"};
-if(score >= 2) return {nivel:"⚡ Boa", cor:"orange"};
-return {nivel:"❌ Fraca", cor:"red"};
+// ===== PEIXES =====
+function sugerirPeixes(nivel){
+if(nivel.includes("Muito Boa"))
+return "Robalo, Dourado, Anchova, Olhete";
+
+if(nivel.includes("Boa"))
+return "Pescada, Corvina, Xaréu";
+
+return "Tilápia, Bagre";
 }
 
 // ===== BUSCAR =====
 async function buscar(){
 
-const coords = document.getElementById('cidade').value.split(',');
-const lat = coords[0];
-const lng = coords[1];
-
-const data = document.getElementById('dataInput').value;
-const inicio = parseInt(document.getElementById('horaInicio').value);
-const fim = parseInt(document.getElementById('horaFim').value);
+const coords=document.getElementById('cidade').value.split(',');
+const lat=coords[0];
+const lng=coords[1];
+const data=document.getElementById('dataInput').value;
 
 if(!data) return alert("Escolha data");
 
-try{
-
-const clima = await fetch(
+const clima=await fetch(
 `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,precipitation,surface_pressure&start_date=${data}&end_date=${data}&timezone=America/Sao_Paulo`
 ).then(r=>r.json());
 
-const ondasApi = await fetch(
-`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lng}&hourly=wave_height&start_date=${data}&end_date=${data}&timezone=America/Sao_Paulo`
+const ondasApi=await fetch(
+`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lng}&hourly=wave_height&start_date=${data}&end_date=${data}`
 ).then(r=>r.json());
 
-const horas = clima.hourly.time.map(t=>new Date(t).getHours());
+const media=a=>a.reduce((x,y)=>x+y,0)/a.length;
 
-let temperaturas=[], ondas=[], vento=[], direcoes=[], chuva=[], pressaoArr=[];
+document.getElementById('temp').innerText=media(clima.hourly.temperature_2m).toFixed(1)+"°C";
+document.getElementById('vento').innerText=media(clima.hourly.wind_speed_10m).toFixed(1)+" km/h";
+document.getElementById('ondas').innerText=media(ondasApi.hourly.wave_height).toFixed(1)+" m";
+document.getElementById('chuva').innerText=clima.hourly.precipitation.reduce((a,b)=>a+b,0).toFixed(1)+" mm";
 
-horas.forEach((h,i)=>{
-if(h>=inicio && h<=fim){
-temperaturas.push(clima.hourly.temperature_2m[i]);
-ondas.push(ondasApi.hourly.wave_height[i] || 0);
-vento.push(clima.hourly.wind_speed_10m[i]);
-direcoes.push(clima.hourly.wind_direction_10m[i]);
-chuva.push(clima.hourly.precipitation[i]);
-pressaoArr.push(clima.hourly.surface_pressure[i]);
-}
-});
+const pressao=media(clima.hourly.surface_pressure);
+const p=interpretarPressao(pressao);
+document.getElementById('pressao').innerText=p.txt+" "+pressao.toFixed(0)+"hPa";
 
-const media = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+document.getElementById('lua').innerText=calcularLua(data);
 
-const vel = media(vento);
-const dir = direcao(media(direcoes));
-const pressaoMedia = media(pressaoArr);
-
-// UI clima
-document.getElementById('vento').innerText = `${vel.toFixed(1)} km/h (${dir})`;
-document.getElementById('ondas').innerText = `${media(ondas).toFixed(1)} m`;
-document.getElementById('temp').innerText = `${media(temperaturas).toFixed(1)} °C`;
-document.getElementById('chuva').innerText = `${chuva.reduce((a,b)=>a+b,0).toFixed(1)} mm`;
-document.getElementById('lua').innerText = calcularLua(data);
-
-// pressão UI
-const p = interpretarPressao(pressaoMedia);
-const elP = document.getElementById('pressao');
-elP.innerText = `${p.texto} (${pressaoMedia.toFixed(0)} hPa)`;
-elP.style.color = p.cor;
-
-// marés
-const banco = await fetch('mares.json').then(r=>r.json());
-
-let mares = banco["20540"]?.[data] || [
+// mares fake (ou JSON)
+const mares=[
 {tipo:"ALTA",hora:"03:00",altura:1.8},
 {tipo:"BAIXA",hora:"09:00",altura:0.5},
 {tipo:"ALTA",hora:"15:00",altura:1.7},
 {tipo:"BAIXA",hora:"21:00",altura:0.6}
 ];
 
-// atividade peixe
-const atividade = calcularAtividadePeixe(mares, pressaoMedia);
-const elA = document.getElementById('atividade');
-elA.innerText = atividade.nivel;
-elA.style.color = atividade.cor;
-
 // tabela
-const linha = document.getElementById('linhaMares');
-linha.innerHTML = '';
-
+const linha=document.getElementById('linhaMares');
+linha.innerHTML='';
 mares.forEach(m=>{
-linha.innerHTML += `
-<td>
-<div class="${m.tipo==='ALTA'?'alta':'baixa'}">${m.tipo==="ALTA"?"🔼 Alta":"🔽 Baixa"}</div>
-<div><b>${m.hora}</b></div>
-<div>${parseFloat(m.altura).toFixed(2)} m</div>
-</td>`;
+linha.innerHTML+=`<td>${m.tipo}<br>${m.hora}<br>${m.altura}m</td>`;
 });
+
+// atividade + peixes
+const atividade=calcularAtividade(mares,pressao);
+document.getElementById('atividade').innerText=atividade;
+document.getElementById('listaPeixes').innerText=sugerirPeixes(atividade);
 
 // gráfico
 desenharGrafico(mares);
-
-}catch(e){
-console.error(e);
-alert("Erro ao carregar dados");
 }
 
-}
-
-// ===== GRÁFICO SUAVE =====
+// ===== GRÁFICO =====
 function desenharGrafico(mares){
+const c=document.getElementById('grafico');
+const ctx=c.getContext('2d');
+c.width=c.offsetWidth;
+c.height=180;
 
-const canvas = document.getElementById('grafico');
-const ctx = canvas.getContext('2d');
+ctx.clearRect(0,0,c.width,c.height);
 
-canvas.width = canvas.offsetWidth;
-canvas.height = 200;
-
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-const alturas = mares.map(m=>parseFloat(m.altura));
-const max = Math.max(...alturas);
-const min = Math.min(...alturas);
-
-const stepX = canvas.width/(mares.length-1);
-
-let pontos = mares.map((m,i)=>({
-x: i*stepX,
-y: canvas.height - ((m.altura-min)/(max-min))*canvas.height
+let pts=mares.map((m,i)=>({
+x:i*(c.width/(mares.length-1)),
+y:c.height-m.altura*60
 }));
 
 ctx.beginPath();
-ctx.moveTo(pontos[0].x,pontos[0].y);
+ctx.moveTo(pts[0].x,pts[0].y);
 
-for(let i=1;i<pontos.length;i++){
-const xc = (pontos[i].x + pontos[i-1].x)/2;
-const yc = (pontos[i].y + pontos[i-1].y)/2;
-ctx.quadraticCurveTo(pontos[i-1].x,pontos[i-1].y,xc,yc);
+for(let i=1;i<pts.length;i++){
+let xc=(pts[i].x+pts[i-1].x)/2;
+let yc=(pts[i].y+pts[i-1].y)/2;
+ctx.quadraticCurveTo(pts[i-1].x,pts[i-1].y,xc,yc);
 }
 
-ctx.strokeStyle="#0056b3";
-ctx.lineWidth=3;
+ctx.strokeStyle="#007bff";
+ctx.lineWidth=2;
 ctx.stroke();
 }
 
