@@ -97,10 +97,7 @@ canvas {
     border-radius:10px;
 }
 
-/* gráfico detalhado */
-#detalhado {
-    display:none;
-    margin-top:10px;
+
 }
 </style>
 </head>
@@ -159,7 +156,7 @@ canvas {
 
 <canvas id="grafico"></canvas>
 
-<button onclick="toggleDetalhado()">📈 Ver gráfico detalhado</button>
+
 
 <canvas id="detalhado"></canvas>
 
@@ -279,13 +276,6 @@ document.getElementById('listaPeixes').innerText=peixes(atv);
 // gráfico maré
 desenharGrafico(mares);
 
-// gráfico detalhado
-//const inicio = parseInt(document.getElementById('horaInicio').value);
-//const fim = parseInt(document.getElementById('horaFim').value);
-
-//desenharDetalhado(clima, inicio, fim);
-
-//}
 
 // gráfico maré
 function desenharGrafico(mares){
@@ -315,14 +305,7 @@ ctx.lineWidth=2;
 ctx.stroke();
 }
 
-// gráfico detalhado estilo site
 
-
-// toggle
-function toggleDetalhado(){
-const el=document.getElementById('detalhado');
-el.style.display = el.style.display==="none" ? "block":"none";
-}
 
 </script>
 
