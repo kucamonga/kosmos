@@ -318,20 +318,19 @@ ctx.stroke();
 // gráfico detalhado estilo site
 function desenharDetalhado(clima, inicio, fim){
 
-const c=document.getElementById('detalhado');
-const ctx=c.getContext('2d');
+const canvas = document.getElementById('detalhado');
+const ctx = canvas.getContext('2d');
 
-c.width=c.offsetWidth;
-c.height=180;
+// reset total (ESSENCIAL 🔥)
+canvas.width = canvas.offsetWidth;
+canvas.height = 180;
+ctx.clearRect(0,0,canvas.width,canvas.height);
 
-ctx.clearRect(0,0,c.width,c.height);
-
-// pegar horas
+// ===== FILTRO DE HORAS =====
 const horas = clima.hourly.time.map(t => new Date(t).getHours());
 
 let dados = [];
 
-// filtrar intervalo
 horas.forEach((h,i)=>{
     if(h >= inicio && h <= fim){
         dados.push({
@@ -341,37 +340,70 @@ horas.forEach((h,i)=>{
     }
 });
 
+// segurança
 if(dados.length < 2) return;
 
-// escala
-const max = Math.max(...dados.map(d=>d.pressao));
-const min = Math.min(...dados.map(d=>d.pressao));
+// ===== NORMALIZAÇÃO =====
+const valores = dados.map(d=>d.pressao);
+const max = Math.max(...valores);
+const min = Math.min(...valores);
 
-const step = c.width / (dados.length - 1);
+// evitar divisão por zero
+const range = (max - min) || 1;
 
+const largura = canvas.width;
+const altura = canvas.height;
+
+const stepX = largura / (dados.length - 1);
+
+// ===== LINHA SUAVE =====
 ctx.beginPath();
 
 dados.forEach((d,i)=>{
-    const x = i * step;
-    const y = c.height - ((d.pressao - min) / (max - min)) * c.height;
+    const x = i * stepX;
+    const y = altura - ((d.pressao - min) / range) * (altura - 30) - 10;
 
-    if(i===0) ctx.moveTo(x,y);
-    else ctx.lineTo(x,y);
+    if(i === 0){
+        ctx.moveTo(x,y);
+    } else {
+        const prev = dados[i-1];
+        const prevX = (i-1) * stepX;
+        const prevY = altura - ((prev.pressao - min) / range) * (altura - 30) - 10;
 
-    // pontinho
-    ctx.fillStyle = "#0056b3";
+        const xc = (x + prevX)/2;
+        const yc = (y + prevY)/2;
+
+        ctx.quadraticCurveTo(prevX, prevY, xc, yc);
+    }
+});
+
+// estilo linha
+ctx.strokeStyle = "#0056b3";
+ctx.lineWidth = 2;
+ctx.stroke();
+
+// ===== PONTOS + TEXTO =====
+dados.forEach((d,i)=>{
+    const x = i * stepX;
+    const y = altura - ((d.pressao - min) / range) * (altura - 30) - 10;
+
+    // ponto
     ctx.beginPath();
-    ctx.arc(x,y,3,0,Math.PI*2);
+    ctx.arc(x,y,4,0,Math.PI*2);
+    ctx.fillStyle = "#007bff";
     ctx.fill();
 
     // hora
-    ctx.fillStyle="#333";
-    ctx.fillText(d.hora+"h", x-8, c.height-5);
+    ctx.fillStyle = "#333";
+    ctx.font = "10px Arial";
+    ctx.fillText(d.hora+"h", x-10, altura-5);
+
+    // valor
+    ctx.fillStyle = "#007bff";
+    ctx.font = "bold 10px Arial";
+    ctx.fillText(d.pressao.toFixed(0), x-12, y-10);
 });
 
-ctx.strokeStyle="#0056b3";
-ctx.lineWidth=2;
-ctx.stroke();
 }
 
 // toggle
