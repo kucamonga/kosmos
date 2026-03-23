@@ -98,7 +98,6 @@ canvas {
 }
 
 
-}
 </style>
 </head>
 
@@ -254,7 +253,7 @@ document.getElementById('pressao').innerText=pressaoIcone(pressao)+" "+pressao.t
 let mares = [];
 
 try{
-  const api = await fetch(url).then(r=>r.json());
+  const api = await fetch('mares.json').then(r=>r.json());
   mares = api.previsoes;
 }catch{
   const local = await fetch('mares.json').then(r=>r.json());
@@ -274,7 +273,7 @@ document.getElementById('atividade').innerText=atv;
 document.getElementById('listaPeixes').innerText=peixes(atv);
 
 // gráfico maré
-desenharGrafico(mares);
+//desenharGrafico(mares);
 
 
 // gráfico maré
