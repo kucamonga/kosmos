@@ -155,10 +155,6 @@ canvas {
 
 <canvas id="grafico"></canvas>
 
-
-
-<canvas id="detalhado"></canvas>
-
 <div class="peixes">
 <h4>🐟 Espécies indicadas</h4>
 <div id="listaPeixes">--</div>
@@ -270,10 +266,6 @@ linha.innerHTML+=`<td>${m.tipo==="ALTA"?"🔼":"🔽"}<br>${m.hora}<br>${m.altur
 const atv=atividade(mares,pressao);
 document.getElementById('atividade').innerText=atv;
 document.getElementById('listaPeixes').innerText=peixes(atv);
-
-// gráfico maré
-//desenharGrafico(mares);
-
 
 // gráfico maré
 function desenharGrafico(mares){
