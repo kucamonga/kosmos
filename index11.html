@@ -147,7 +147,7 @@ canvas {
 <div class="card">🌊 <span id="ondas">--</span></div>
 <div class="card">🌡️ <span id="temp">--</span></div>
 <div class="card">🌧️ <span id="chuva">--</span></div>
-<div class="card">🌕 <span id="lua">--</span></div>
+<div class="card"><span id="lua">--</span></div>
 <div class="card">📊 <span id="pressao">--</span></div>
 <div class="card">🎣 <span id="atividade">--</span></div>
 </div>
@@ -280,7 +280,10 @@ document.getElementById('listaPeixes').innerText=peixes(atv);
 desenharGrafico(mares);
 
 // gráfico detalhado
-desenharDetalhado(clima);
+const inicio = parseInt(document.getElementById('horaInicio').value);
+const fim = parseInt(document.getElementById('horaFim').value);
+
+desenharDetalhado(clima, inicio, fim);
 
 }
 
@@ -313,35 +316,62 @@ ctx.stroke();
 }
 
 // gráfico detalhado estilo site
-function desenharDetalhado(clima){
+function desenharDetalhado(clima, inicio, fim){
 
 const c=document.getElementById('detalhado');
 const ctx=c.getContext('2d');
 
 c.width=c.offsetWidth;
-c.height=200;
+c.height=180;
 
 ctx.clearRect(0,0,c.width,c.height);
 
-const press=clima.hourly.surface_pressure;
-const max=Math.max(...press);
-const min=Math.min(...press);
+// pegar horas
+const horas = clima.hourly.time.map(t => new Date(t).getHours());
 
-const step=c.width/(press.length-1);
+let dados = [];
+
+// filtrar intervalo
+horas.forEach((h,i)=>{
+    if(h >= inicio && h <= fim){
+        dados.push({
+            hora: h,
+            pressao: clima.hourly.surface_pressure[i]
+        });
+    }
+});
+
+if(dados.length < 2) return;
+
+// escala
+const max = Math.max(...dados.map(d=>d.pressao));
+const min = Math.min(...dados.map(d=>d.pressao));
+
+const step = c.width / (dados.length - 1);
 
 ctx.beginPath();
 
-press.forEach((p,i)=>{
-const x=i*step;
-const y=c.height-((p-min)/(max-min))*c.height;
+dados.forEach((d,i)=>{
+    const x = i * step;
+    const y = c.height - ((d.pressao - min) / (max - min)) * c.height;
 
-if(i===0) ctx.moveTo(x,y);
-else ctx.lineTo(x,y);
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+
+    // pontinho
+    ctx.fillStyle = "#0056b3";
+    ctx.beginPath();
+    ctx.arc(x,y,3,0,Math.PI*2);
+    ctx.fill();
+
+    // hora
+    ctx.fillStyle="#333";
+    ctx.fillText(d.hora+"h", x-8, c.height-5);
 });
 
 ctx.strokeStyle="#0056b3";
+ctx.lineWidth=2;
 ctx.stroke();
-
 }
 
 // toggle
