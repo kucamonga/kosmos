@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mar ES</title>
+<title>🌊 Mar ES</title>
 
 <style>
 body {
@@ -30,7 +30,6 @@ h2 { text-align:center; margin-bottom:5px; }
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:8px;
-    margin-bottom:10px;
 }
 
 select,input,button {
@@ -98,10 +97,11 @@ canvas {
     border-radius:10px;
 }
 
-.peixes h4 {
-    margin:0 0 5px;
+/* gráfico detalhado */
+#detalhado {
+    display:none;
+    margin-top:10px;
 }
-
 </style>
 </head>
 
@@ -110,7 +110,7 @@ canvas {
 <div class="container">
 
 <h2>🌊 Mar ES</h2>
-<div class="sub">Maré oficial: Tubarão</div>
+<div class="sub">Maré oficial: Porto de Tubarão</div>
 
 <div class="controles">
 <select id="cidade">
@@ -147,17 +147,21 @@ canvas {
 <div class="card">🌊 <span id="ondas">--</span></div>
 <div class="card">🌡️ <span id="temp">--</span></div>
 <div class="card">🌧️ <span id="chuva">--</span></div>
-<div class="card">🌕 <span id="lua">--</span></div>
+<div class="card"><span id="lua">--</span></div>
 <div class="card">📊 <span id="pressao">--</span></div>
 <div class="card">🎣 <span id="atividade">--</span></div>
 </div>
 
-<div class="titulo">TÁBUA DE MARÉS</div>
+<div class="titulo">TÁBUA DE MARÉS - TUBARÃO</div>
 <table>
 <tr id="linhaMares"></tr>
 </table>
 
 <canvas id="grafico"></canvas>
+
+<button onclick="toggleDetalhado()">📈 Ver gráfico detalhado</button>
+
+<canvas id="detalhado"></canvas>
 
 <div class="peixes">
 <h4>🐟 Espécies indicadas</h4>
@@ -168,40 +172,38 @@ canvas {
 
 <script>
 
-// ===== LUA =====
-function calcularLua(dataStr){
-const d=new Date(dataStr);
-const dias=(d-new Date(2000,0,6))/86400000;
+// LUA
+function calcularLua(d){
+const dias=(new Date(d)-new Date(2000,0,6))/86400000;
 const fase=(dias%29.53)/29.53;
-if(fase<0.25) return "Crescente";
-if(fase<0.5) return "Cheia";
-if(fase<0.75) return "Minguante";
-return "Nova";
+if(fase<0.25) return "🌒 Crescente";
+if(fase<0.5) return "🌕 Cheia";
+if(fase<0.75) return "🌘 Minguante";
+return "🌑 Nova";
 }
 
-// ===== DIREÇÃO =====
-function direcao(g){
+// DIREÇÃO
+function dir(g){
 const d=["N","NE","E","SE","S","SO","O","NO"];
 return d[Math.round(g/45)%8];
 }
 
-// ===== PRESSÃO =====
-function interpretarPressao(v){
-if(v>1015) return {txt:"🔵 Alta", cor:"blue"};
-if(v>=1005) return {txt:"🟡 Média", cor:"orange"};
-return {txt:"🔴 Baixa", cor:"red"};
+// PRESSÃO (com bolinhas)
+function pressaoIcone(v){
+if(v>1015) return "🔵 Alta";
+if(v>=1005) return "🟡 Média";
+return "🔴 Baixa";
 }
 
-// ===== ATIVIDADE =====
-function calcularAtividade(mares,pressao){
-let variacao=0;
+// ATIVIDADE
+function atividade(mares,pressao){
+let v=0;
 for(let i=1;i<mares.length;i++){
-variacao+=Math.abs(mares[i].altura-mares[i-1].altura);
+v+=Math.abs(mares[i].altura-mares[i-1].altura);
 }
-
 let score=0;
-if(variacao>2.5) score+=2;
-else if(variacao>1.5) score+=1;
+if(v>2.5) score+=2;
+else if(v>1.5) score+=1;
 
 if(pressao<1005) score+=2;
 else if(pressao<1015) score+=1;
@@ -211,23 +213,18 @@ if(score>=2) return "⚡ Boa";
 return "❌ Fraca";
 }
 
-// ===== PEIXES =====
-function sugerirPeixes(nivel){
-if(nivel.includes("Muito Boa"))
-return "Robalo, Dourado, Anchova, Olhete";
-
-if(nivel.includes("Boa"))
-return "Pescada, Corvina, Xaréu";
-
+// PEIXES
+function peixes(n){
+if(n.includes("Muito")) return "Robalo, Dourado, Anchova";
+if(n.includes("Boa")) return "Pescada, Corvina";
 return "Tilápia, Bagre";
 }
 
-// ===== BUSCAR =====
+// BUSCAR
 async function buscar(){
 
 const coords=document.getElementById('cidade').value.split(',');
-const lat=coords[0];
-const lng=coords[1];
+const lat=coords[0],lng=coords[1];
 const data=document.getElementById('dataInput').value;
 
 if(!data) return alert("Escolha data");
@@ -242,18 +239,21 @@ const ondasApi=await fetch(
 
 const media=a=>a.reduce((x,y)=>x+y,0)/a.length;
 
-document.getElementById('temp').innerText=media(clima.hourly.temperature_2m).toFixed(1)+"°C";
-document.getElementById('vento').innerText=media(clima.hourly.wind_speed_10m).toFixed(1)+" km/h";
-document.getElementById('ondas').innerText=media(ondasApi.hourly.wave_height).toFixed(1)+" m";
-document.getElementById('chuva').innerText=clima.hourly.precipitation.reduce((a,b)=>a+b,0).toFixed(1)+" mm";
-
+const temp=media(clima.hourly.temperature_2m);
+const vento=media(clima.hourly.wind_speed_10m);
+const dirv=dir(media(clima.hourly.wind_direction_10m));
+const ondas=media(ondasApi.hourly.wave_height);
+const chuva=clima.hourly.precipitation.reduce((a,b)=>a+b,0);
 const pressao=media(clima.hourly.surface_pressure);
-const p=interpretarPressao(pressao);
-document.getElementById('pressao').innerText=p.txt+" "+pressao.toFixed(0)+"hPa";
 
+document.getElementById('temp').innerText=temp.toFixed(1)+"°C";
+document.getElementById('vento').innerText=vento.toFixed(1)+" km/h ("+dirv+")";
+document.getElementById('ondas').innerText=ondas.toFixed(1)+" m";
+document.getElementById('chuva').innerText=chuva.toFixed(1)+" mm";
 document.getElementById('lua').innerText=calcularLua(data);
+document.getElementById('pressao').innerText=pressaoIcone(pressao)+" "+pressao.toFixed(0)+" hPa";
 
-// mares fake (ou JSON)
+// MARÉS (fixo ou JSON)
 let mares = [];
 
 try{
@@ -268,19 +268,26 @@ try{
 const linha=document.getElementById('linhaMares');
 linha.innerHTML='';
 mares.forEach(m=>{
-linha.innerHTML+=`<td>${m.tipo}<br>${m.hora}<br>${m.altura}m</td>`;
+linha.innerHTML+=`<td>${m.tipo==="ALTA"?"🔼":"🔽"}<br>${m.hora}<br>${m.altura}m</td>`;
 });
 
-// atividade + peixes
-const atividade=calcularAtividade(mares,pressao);
-document.getElementById('atividade').innerText=atividade;
-document.getElementById('listaPeixes').innerText=sugerirPeixes(atividade);
+// atividade
+const atv=atividade(mares,pressao);
+document.getElementById('atividade').innerText=atv;
+document.getElementById('listaPeixes').innerText=peixes(atv);
 
-// gráfico
+// gráfico maré
 desenharGrafico(mares);
-}
 
-// ===== GRÁFICO =====
+// gráfico detalhado
+//const inicio = parseInt(document.getElementById('horaInicio').value);
+//const fim = parseInt(document.getElementById('horaFim').value);
+
+//desenharDetalhado(clima, inicio, fim);
+
+//}
+
+// gráfico maré
 function desenharGrafico(mares){
 const c=document.getElementById('grafico');
 const ctx=c.getContext('2d');
@@ -306,6 +313,15 @@ ctx.quadraticCurveTo(pts[i-1].x,pts[i-1].y,xc,yc);
 ctx.strokeStyle="#007bff";
 ctx.lineWidth=2;
 ctx.stroke();
+}
+
+// gráfico detalhado estilo site
+
+
+// toggle
+function toggleDetalhado(){
+const el=document.getElementById('detalhado');
+el.style.display = el.style.display==="none" ? "block":"none";
 }
 
 </script>
