@@ -254,12 +254,15 @@ document.getElementById('pressao').innerText=p.txt+" "+pressao.toFixed(0)+"hPa";
 document.getElementById('lua').innerText=calcularLua(data);
 
 // mares fake (ou JSON)
-const mares=[
-{tipo:"ALTA",hora:"03:00",altura:1.8},
-{tipo:"BAIXA",hora:"09:00",altura:0.5},
-{tipo:"ALTA",hora:"15:00",altura:1.7},
-{tipo:"BAIXA",hora:"21:00",altura:0.6}
-];
+let mares = [];
+
+try{
+  const api = await fetch(url).then(r=>r.json());
+  mares = api.previsoes;
+}catch{
+  const local = await fetch('mares.json').then(r=>r.json());
+  mares = local["20540"][data];
+}
 
 // tabela
 const linha=document.getElementById('linhaMares');
