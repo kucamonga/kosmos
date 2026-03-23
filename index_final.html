@@ -254,7 +254,9 @@ document.getElementById('lua').innerText=calcularLua(data);
 document.getElementById('pressao').innerText=pressaoIcone(pressao)+" "+pressao.toFixed(0)+" hPa";
 
 // MARÉS (fixo ou JSON)
-const mares=[
+const banco = await fetch('mares.json').then(r=>r.json());
+
+let mares = banco["20540"]?.[data] || [
 {tipo:"ALTA",hora:"03:00",altura:1.8},
 {tipo:"BAIXA",hora:"09:00",altura:0.5},
 {tipo:"ALTA",hora:"15:00",altura:1.7},
